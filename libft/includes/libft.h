@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:08:20 by jbaumfal          #+#    #+#             */
-/*   Updated: 2024/09/20 18:32:37 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/03 13:34:38 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define LIBFT_H
 
 # include <stdlib.h>
+# include <stdbool.h>
 # include <unistd.h>
 # include <stdio.h>
 # include <string.h>

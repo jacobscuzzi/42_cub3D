@@ -25,19 +25,15 @@ SRCS_DIR = ./srcs/
 OBJ_DIR = ./obj
 
 
-OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRCS)))
+OBJ_FILES		= $(patsubst $(SRCS_DIR)/%.c,$(OBJ_DIR)/%.o,$(FILES))
 
 MLX_DIR         = ./mlx
 
-FILES			= \
-					main.c\
-					parsing.c \
-					new_game.c \
-					mlx_hooks.c
-				
+# i have the files done with thhe find shell command
+# However once we finish we need to add the files manually to the FILES variable, as the find command is maybe forbidden
+FILES			= $(shell find $(SRCS_DIR) -type f -name '*.c')
 
-
-SRCS			= $(addprefix $(SRCS_DIR), $(FILES))
+SRCS			= $(FILES)
 
 all : ${NAME}
 
@@ -51,6 +47,7 @@ $(NAME): $(OBJ_FILES) $(LIBFT)
 		@$(CC) $(SRCS) $(LIBFT) ${STANDARD_FLAGS}  ${MLX_FLAGS} -o ${NAME}
 
 $(OBJ_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
 $(OBJ_DIR):

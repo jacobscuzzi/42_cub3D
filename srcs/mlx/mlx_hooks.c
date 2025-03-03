@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 15:06:27 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/02/28 19:30:20 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:24:17 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ int	on_destroy(t_data *data)
 {
 	mlx_destroy_window(data->mlx, data->mlx_win);
 	mlx_destroy_display(data->mlx);
-	free_data(data);
+	//free_data(data);
 	exit(1);
 	return (0);
 }
