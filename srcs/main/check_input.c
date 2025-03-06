@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/06 15:18:26 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/06 17:14:20 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,10 @@ t_error	check_map(int fd, char *line)
 
 t_error	check_scene_file(char *path)
 {
-	int		fd;
-	char	*line;
-	t_error	status;
+	int				fd;
+	char			*line;
+	t_error			status;
+	t_line_check	line_type;
 
 	fd = open(path, O_RDONLY);
 	if (fd == -1)
@@ -73,8 +74,9 @@ t_error	check_scene_file(char *path)
 		return (FATAL_ERROR);
 	while (line)
 	{
-		if (check_if_map(line) == true)
-			break ;
+		line_type = check_line(line);
+		if (line_type == L_INVALID)
+			return (SCENE_LINE_ERR);
 		free(line);
 		line = NULL;
 		line = get_next_line(fd);

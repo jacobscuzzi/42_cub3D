@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/06 15:22:01 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/06 17:13:55 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,9 @@ typedef enum e_error
 	SUCCESS,
 	INPUT_ERR,
 	OPEN_ERR,
-	FATAL_ERROR,
-	MAP_ERROR
+	SCENE_LINE_ERR,
+	MAP_ERROR,
+	FATAL_ERROR
 }	t_error;
 
 typedef enum e_identifier
@@ -36,6 +37,15 @@ typedef enum e_identifier
 	FLOOR,
 	CIELING
 }	t_identifier;
+
+typedef enum e_line_check
+{
+	L_EMPTY,
+	L_IDENTIFIER,
+	L_MAP,
+	L_INVALID
+}	t_line_check;
+
 
 
 // Structures
