@@ -3,10 +3,11 @@
 # include "mlx/mlx.h"
 # include <X11/X.h>
 # include <X11/keysym.h>
+# include <math.h>
 # define WIDTH 700
 # define HEIGHT 700
 # define PX_SIZE 64
-
+# define PI 3.14159265358979323846
 
 typedef struct s_img
 {
@@ -23,8 +24,11 @@ typedef struct s_raycaster
     void	*win_ptr;
     t_img	img;
     int     background_color;
-    int     px; //player's position 
-    int     py; //player's position
+    double     px; //player's position 
+    double     py; //player's position
+    double    pa; //players's orientation
+    double    pdx; //next move projection
+    double    pdy;
     int     col; 
     int     lines;
 }   t_raycaster;
@@ -77,6 +81,9 @@ void	init_mlx(t_raycaster *cub3d)
     cub3d->py = 400;
     cub3d->col = 8;
     cub3d->lines = 8;
+    cub3d->pa = 0;
+    cub3d->pdx = cos(cub3d->pa) * 5; //cos(0)=1
+    cub3d->pdy = sin(cub3d->pa) * 5; //sin(0)=0
 }
 
 int	end_cub3d(t_raycaster *cub3d)
@@ -98,6 +105,33 @@ static void	my_pixel_put(int x, int y, t_img *img, int color)
 		*(unsigned int *)(img->pix_ptr + offset) = color;
 	}
 }
+//Bresenham algorithm (not mine) //TODO
+void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
+{
+    int dx = abs(x1 - x0); // Différence absolue en x
+    int dy = abs(y1 - y0); // Différence absolue en y
+    int sx = (x0 < x1) ? 1 : -1; // Direction du pas en x
+    int sy = (y0 < y1) ? 1 : -1; // Direction du pas en y
+    int err = dx - dy; // Erreur initiale
+
+    while (1)
+    {
+        my_pixel_put(x0, y0, img, color); // Dessiner le pixel à la position actuelle
+        if (x0 == x1 && y0 == y1) // Si on a atteint le point final, sortir de la boucle
+            break;
+        int e2 = err * 2; // Double de l'erreur
+        if (e2 > -dy)
+        {
+            err -= dy; // Ajuster l'erreur
+            x0 += sx; // Avancer en x
+        }
+        if (e2 < dx)
+        {
+            err += dx; // Ajuster l'erreur
+            y0 += sy; // Avancer en y
+        }
+    }
+}
 
 void	draw_player(t_raycaster *cub3d, int size)
 {
@@ -117,6 +151,7 @@ void	draw_player(t_raycaster *cub3d, int size)
         }
         x++;
     }
+    draw_line(&cub3d->img, center_x, center_y, center_x + (int)(cub3d->pdx * 5), center_y + (int)(cub3d->pdy * 5), yellow);
 }
 
 void    draw_background(t_raycaster *cub3d)
@@ -202,26 +237,33 @@ int	key_hook(int keysym, t_raycaster *cub3d)
 {
 	if (keysym == XK_Escape)
 		end_cub3d(cub3d);
-	if (keysym == XK_Right)
+    if (keysym == XK_d)
     {
-        cub3d->px += 5;
-        cub3d_draw(cub3d);
+        cub3d->pa += 0.1; //TODO
+        if (cub3d->pa > 2*PI)
+            cub3d->pa -= 2*PI;
+        cub3d->pdx = cos(cub3d->pa) * 5;
+        cub3d->pdy = sin(cub3d->pa) * 5;
+    }
+	else if (keysym == XK_a)
+    {
+        cub3d->pa -= 0.1;
+        if (cub3d->pa < 0)
+            cub3d->pa += 2*PI;
+        cub3d->pdx=cos(cub3d->pa)*5;
+        cub3d->pdy=sin(cub3d->pa)*5;
     }  
-    else if (keysym == XK_Left)
-    {
-        cub3d->px -= 5;
-        cub3d_draw(cub3d);
-    }
-	else if (keysym == XK_Up)
+	else if (keysym == XK_w)
 	{
-        cub3d->py -= 5;
-        cub3d_draw(cub3d);
+        cub3d->px += cub3d->pdx;
+        cub3d->py += cub3d->pdy;
     }
-	else if (keysym == XK_Down)
+	else if (keysym == XK_s)
 	{
-        cub3d->py += 5;
-        cub3d_draw(cub3d);
+        cub3d->px -= cub3d->pdx;
+        cub3d->py -= cub3d->pdy;
     }
+    cub3d_draw(cub3d);
 	return (0);
 }
 

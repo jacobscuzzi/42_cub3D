@@ -2,7 +2,7 @@ NAME			= cub3D
 
 CC				= clang
 
-CFLAG			= -Wall -Wextra -Werror
+CFLAG			= -Wall -Wextra -Werror -lm
 
 LIBFT_PATH		= libft/
 
@@ -44,7 +44,7 @@ ${MLX_DIR}/libmlx.a:
 	make -C $(MLX_DIR)
 
 $(NAME): $(OBJ_FILES) $(LIBFT) ${MLX_DIR}/libmlx.a
-		@$(CC) $(OBJ_FILES) $(LIBFT) ${STANDARD_FLAGS} ${MLX_FLAGS} -o ${NAME}
+		@$(CC) $(OBJ_FILES) $(LIBFT) ${STANDARD_FLAGS} ${MLX_FLAGS} -o ${NAME} -lm
 
 $(OBJ_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
@@ -65,7 +65,7 @@ fclean:
 	@make clean -C $(MLX_DIR)
 	@echo "${NAME}: ${NAME} were deleted${RESET}"
 
-re:			flean all
+re:			fclean all
 
 
 run:		${NAME}
