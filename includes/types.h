@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/03 15:05:15 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:22:01 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,21 @@ typedef enum e_error
 {
 	SUCCESS,
 	INPUT_ERR,
-	FILE_ERR,
+	OPEN_ERR,
 	FATAL_ERROR,
 	MAP_ERROR
 }	t_error;
 
-
-
+typedef enum e_identifier
+{
+	NONE,
+	NORTH,
+	SOUTH,
+	WEST,
+	EAST,
+	FLOOR,
+	CIELING
+}	t_identifier;
 
 
 // Structures

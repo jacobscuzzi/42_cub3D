@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/03 15:32:04 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:07:25 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 void	ft_error(t_error error_type)
 {
 	if (error_type == INPUT_ERR)
-		ft_putstr_fd("Error\nInvalid Input\nNeeds 1 .cub file as input", 2);
+		ft_putstr_fd("Error\nInvalid Input\nNeeds 1 (*.cub) file as input", 2);
+	if (error_type == OPEN_ERR)
+		ft_putstr_fd("Error\nCould not open file. Check name and permissions", 2);
 }
 
 void	end_game(t_data *data)
