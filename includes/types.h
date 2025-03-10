@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/06 17:13:55 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/09 23:59:22 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,8 @@ typedef enum e_line_check
 	L_EMPTY,
 	L_IDENTIFIER,
 	L_MAP,
-	L_INVALID
+	L_INVALID,
+	L_VALID
 }	t_line_check;
 
 

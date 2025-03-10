@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/06 17:14:20 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/10 03:01:14 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ t_error	check_format(int argc, char **argv)
 }
 
 
-
+/*
 t_error	check_map(int fd, char *line)
 {
 	int		i;
@@ -55,7 +55,30 @@ t_error	check_map(int fd, char *line)
 	}
 	return (SUCCESS);
 }
+*/
 
+t_error	check_line_type_status(t_line_check line_type, bool *map_started)
+{
+	if (line_type == L_EMPTY)
+		return (SUCCESS);
+	if (line_type == L_IDENTIFIER)
+	{
+		if (*map_started == true)
+		{
+			ft_putstr_fd("Error\n Map has to be last element in scenefile\n", 2);
+			return (SCENE_LINE_ERR);
+		}
+		return (SUCCESS);
+	}
+	if (line_type == L_MAP)
+	{
+		*map_started = true;
+		return (SUCCESS);
+	}
+	if (line_type == L_INVALID)
+		return (SCENE_LINE_ERR);
+	return (FATAL_ERROR);
+}
 
 
 t_error	check_scene_file(char *path)
@@ -64,7 +87,9 @@ t_error	check_scene_file(char *path)
 	char			*line;
 	t_error			status;
 	t_line_check	line_type;
+	bool			map_started;
 
+	map_started = false;
 	fd = open(path, O_RDONLY);
 	if (fd == -1)
 		return (OPEN_ERR);
@@ -74,14 +99,12 @@ t_error	check_scene_file(char *path)
 		return (FATAL_ERROR);
 	while (line)
 	{
-		line_type = check_line(line);
-		if (line_type == L_INVALID)
-			return (SCENE_LINE_ERR);
+		line_type = check_scenefile_line(line);
+		status = check_line_type_status(line_type, &map_started);
 		free(line);
 		line = NULL;
 		line = get_next_line(fd);
 	}
-	status = check_map(fd, line);
 	close(fd);
 	return (status);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:03:16 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/03 15:22:11 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/09 23:51:52 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ void	end_game(t_data *data);
 t_error	check_format(int argc, char **argv);
 t_error	check_input(int argc, char **argv);
 
-bool	is_map_char(char c);
-bool	check_if_map(char *line);
+bool	        is_map_char(char c);
+bool            check_if_map(char *line);
+t_line_check    check_scenefile_line(char *line);
 
 #endif

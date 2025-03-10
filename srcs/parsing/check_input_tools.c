@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/09 11:18:40 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/10 02:20:51 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ bool	is_map_char(char c)
 	return (false);
 }
 
+
 /*
 	Here we check if the line is an identifier line. 
 	An identifier line is a line that starts with an identifier followed by a space.
@@ -32,10 +33,9 @@ bool	is_map_char(char c)
 	
 	We check if the line is at least 3 characters long, that way we dont have to be afraid of errors when stack overflows.
 */
+
 bool	is_identifier(char *line)
 {
-	int i;
-
 	if (strlen(line) < 3)
 		return (false);
 	while (*line == ' ')
