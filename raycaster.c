@@ -452,10 +452,55 @@ int	key_hook(int keysym, t_raycaster *cub3d)
     return (0);
 }
 
+int moves(int key, t_raycaster *cub3d)
+{
+    if (key == XK_Escape)
+        end_cub3d(cub3d);
+    else if (key == XK_Right) // Turn right 
+    {
+        cub3d->pa += 0.1;
+        if (cub3d->pa > 2*PI)
+            cub3d->pa -= 2*PI;
+        cub3d->pdx = cos(cub3d->pa) * 5;
+        cub3d->pdy = sin(cub3d->pa) * 5;
+    }
+    else if (key == XK_Left) // Turn left
+    {
+        cub3d->pa -= 0.1;
+        if (cub3d->pa < 0)
+            cub3d->pa += 2*PI;
+        cub3d->pdx = cos(cub3d->pa) * 5;
+        cub3d->pdy = sin(cub3d->pa) * 5;
+    }  
+    else if (key == XK_w) // Avancer
+    {
+        cub3d->px += cub3d->pdx;
+        cub3d->py += cub3d->pdy;
+    }
+    else if (key == XK_s) // Reculer
+    {
+        cub3d->px -= cub3d->pdx;
+        cub3d->py -= cub3d->pdy;
+    }
+    else if (key == XK_a) // se decaler a gauche
+    {
+        cub3d->px += cos(cub3d->pa - PI/2) * 5;
+        cub3d->py += sin(cub3d->pa - PI/2) * 5;
+    }
+    else if (key == XK_d) // se decaler a droite
+    {
+        cub3d->px += cos(cub3d->pa + PI/2) * 5;
+        cub3d->py += sin(cub3d->pa + PI/2) * 5;
+    }
+    cub3d_draw(cub3d);
+    return (0);
+}
+
 void	init_events(t_raycaster *cub3d)
 {
-    mlx_key_hook(cub3d->win_ptr, key_hook, cub3d);
+    //mlx_key_hook(cub3d->win_ptr, key_hook, cub3d);
     //mlx_mouse_hook(cub3d->win_ptr, mouse_hook, cub3d);
+    mlx_hook(cub3d->win_ptr,KeyPress, KeyPressMask, &moves, cub3d);
     mlx_hook(cub3d->win_ptr, DestroyNotify, 0, end_cub3d, cub3d);
 }
 
