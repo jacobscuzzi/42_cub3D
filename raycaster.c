@@ -4,8 +4,9 @@
 # include "mlx/mlx.h"
 # include <X11/X.h>
 # include <X11/keysym.h>
-# define WIDTH 700
+# define WIDTH 1400
 # define HEIGHT 700
+# define MINIMAP_WIDTH 700
 # define PX_SIZE 64
 # define PI 3.14159265358979323846
 
@@ -24,6 +25,7 @@ typedef struct s_raycaster
     void	*win_ptr;
     t_img	img;
     int     background_color;
+    int     wall_color;
     double  px; // Position du joueur
     double  py; // Position du joueur
     double  pa; // Orientation du joueur en radians
@@ -228,29 +230,32 @@ void    draw_map(t_raycaster *cub3d)
 void drawRays2D(t_raycaster *cub3d)
 {
     int r, mx, my, mp, dof;
-    float rx, ry, ra, xo, yo;  
-    int mapX = 8; // Number of columns in the map
-    int mapY = 8; // Number of rows in the map
+    float rx, ry, ra, xo, yo, disT;  
+    int mapX = 8;
+    int mapY = 8;
     int map[64]=
     {
-    1,1,1,1,1,1,1,1,
-    1,0,1,0,0,0,0,1,
-    1,0,1,0,0,0,0,1,
-    1,0,1,0,0,0,0,1,
-    1,0,0,0,0,0,0,1,
-    1,0,0,0,0,1,0,1,
-    1,0,0,0,0,0,0,1,
-    1,1,1,1,1,1,1,1,	
+        1,1,1,1,1,1,1,1,
+        1,0,1,0,0,0,0,1,
+        1,0,1,0,0,0,0,1,
+        1,0,1,0,0,0,0,1,
+        1,0,0,0,0,0,0,1,
+        1,0,0,0,0,1,0,1,
+        1,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,	
     };
 
-    ra = cub3d->pa;
+    ra = cub3d->pa - (PI/6);
+    if (ra < 0)
+        ra += 2*PI;
     r = 0;
 
-    while (r < 1)
+    while (r < 60)
     {
         // --- Check Horizontal lines ---
         dof = 0;
         float aTan = -1 / tan(ra);
+        float disH = 1000000, hx = cub3d->px, hy = cub3d->py;
 
         rx = cub3d->px;
         ry = cub3d->py;
@@ -269,7 +274,7 @@ void drawRays2D(t_raycaster *cub3d)
             yo = 64;
             xo = -yo * aTan; 
         }
-        else // Ray looking to the left or to the right
+        else // Ray looking straight left or right
         {
             rx = cub3d->px;
             ry = cub3d->py;
@@ -281,13 +286,15 @@ void drawRays2D(t_raycaster *cub3d)
             mx = (int)(rx) / 64;
             my = (int)(ry) / 64;
             
-            // Vérifier que mx et my sont dans les limites
             if (mx >= 0 && mx < mapX && my >= 0 && my < mapY)
             {
                 mp = my * mapX + mx;
                 if (mp >= 0 && mp < mapX * mapY && map[mp] == 1)
                 {
-                    dof = 8; // Hit wall
+                    hx = rx;
+                    hy = ry;
+                    disH = sqrt((hx-cub3d->px)*(hx-cub3d->px) + (hy-cub3d->py)*(hy-cub3d->py)); //Pythagore
+                    dof = 8;
                 }
                 else
                 {
@@ -297,16 +304,106 @@ void drawRays2D(t_raycaster *cub3d)
                 }
             }
             else
-            {
-                dof = 8; // Out of bounds
-            }
+                dof = 8;
         }
 
-        // Vérifier que les coordonnées sont valides avant de dessiner
-        if (rx >= 0 && rx < WIDTH && ry >= 0 && ry < HEIGHT)
+        // --- Check Vertical Lines ---
+        dof = 0;
+        float nTan = -tan(ra);
+        float disV = 1000000, vx = cub3d->px, vy = cub3d->py;
+
+        if (ra > PI/2 && ra < 3*PI/2) // Ray looking left
         {
-            draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0xFF0000);
+            rx = (floor(cub3d->px/64) * 64) - 0.0001;
+            ry = (cub3d->px - rx) * nTan + cub3d->py;
+            xo = -64;
+            yo = -xo * nTan;
         }
+        else if (ra < PI/2 || ra > 3*PI/2) // Ray looking right
+        {
+            rx = (floor(cub3d->px/64) * 64) + 64;
+            ry = (cub3d->px - rx) * nTan + cub3d->py;
+            xo = 64;
+            yo = -xo * nTan;
+        }
+        else // Looking straight up or down
+        {
+            rx = cub3d->px;
+            ry = cub3d->py;
+            dof = 8;
+        }
+
+        while (dof < 8)
+        {
+            mx = (int)(rx) / 64;
+            my = (int)(ry) / 64;
+            
+            if (mx >= 0 && mx < mapX && my >= 0 && my < mapY)
+            {
+                mp = my * mapX + mx;
+                if (mp >= 0 && mp < mapX * mapY && map[mp] == 1)
+                {
+                    vx = rx;
+                    vy = ry;
+                    disV = sqrt((vx-cub3d->px)*(vx-cub3d->px) + (vy-cub3d->py)*(vy-cub3d->py));
+                    dof = 8;
+                }
+                else
+                {
+                    rx += xo;
+                    ry += yo;
+                    dof += 1;
+                }
+            }
+            else
+                dof = 8;
+        }
+
+        // Draw the shortest ray
+        if (disV < disH)
+        {
+            rx = vx;
+            ry = vy;
+            disT=disV;
+            cub3d->wall_color = 0xE60000;
+            draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0x0000FF); // Blue for vertical
+        }
+        else
+        {
+            rx = hx;
+            ry = hy;
+            disT=disH;
+            cub3d->wall_color = 0xB30000;
+            draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0xFF0000); // Red for horizontal
+        }
+        // Draw 3D walls
+        float ca = cub3d->pa - ra;
+        if (ca < 0)
+            ca += 2*PI;
+        if (ca > 2*PI)
+            ca -= 2*PI;
+        disT = disT * cos(ca); // Fix fisheye effect
+        
+        float lineH = (PX_SIZE * HEIGHT) / disT;
+        if (lineH > HEIGHT)
+            lineH = HEIGHT;
+        
+        float lineO = (HEIGHT/2) - (lineH/2); // Line offset
+        int i = 0;
+        while (i < 8) // Width of the wall slice
+        {
+            int j = 0;
+            while (j < lineH)
+            {
+                my_pixel_put(r*8 + i + WIDTH/2, j + lineO, &cub3d->img, cub3d->wall_color);
+                j++;
+            }
+            i++;
+        }
+
+        ra += (PI/180);
+        if (ra > 2*PI)
+            ra -= 2*PI;
         r++;
     }
 }
