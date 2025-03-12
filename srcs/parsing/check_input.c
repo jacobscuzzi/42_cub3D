@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/10 03:01:14 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/12 13:39:36 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,16 +106,5 @@ t_error	check_scene_file(char *path)
 		line = get_next_line(fd);
 	}
 	close(fd);
-	return (status);
-}
-
-t_error	check_input(int argc, char **argv)
-{
-	t_error	status;
-
-	status = check_format(argc, argv);
-	if (status != SUCCESS)
-		return (status);
-	status = check_scene_file(argv[1]);
 	return (status);
 }

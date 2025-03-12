@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/10 02:20:51 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:50:29 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,25 +34,25 @@ bool	is_map_char(char c)
 	We check if the line is at least 3 characters long, that way we dont have to be afraid of errors when stack overflows.
 */
 
-bool	is_identifier(char *line)
+t_identifier is_identifier(char *line)
 {
 	if (strlen(line) < 3)
-		return (false);
+		return (NONE);
 	while (*line == ' ')
 		line++;
 	if (line[0] == 'N' && line[1] == 'O' && line[2] == ' ')
-		return (true);
+		return (NORTH);
 	if (line[0] == 'S' && line[1] == 'O' && line[2] == ' ')
-		return (true);
+		return (SOUTH);
 	if (line[0] == 'W' && line[1] == 'E' && line[2] == ' ')
-		return (true);
+		return (WEST);
 	if (line[0] == 'E' && line[1] == 'A' && line[2] == ' ')
-		return (true);
+		return (EAST);
 	if (line[0] == 'F' && line[1] == ' ')
-		return (true);
+		return (FLOOR);
 	if (line[0] == 'C' && line[1] == ' ')
-		return (true);
-	return (false);
+		return (CEILING);
+	return (NONE);
 }
 
 bool	is_empty_line(char *line)
@@ -101,7 +101,7 @@ t_line_check check_scenefile_line(char *line)
 {
 	if (is_empty_line(line) == true)
 		return (L_EMPTY);
-	if (is_identifier(line) == true)
+	if (is_identifier(line) != NONE)
 		return (L_IDENTIFIER);
 	if (check_if_map(line) == true)
 		return (L_MAP);
