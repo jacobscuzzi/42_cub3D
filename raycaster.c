@@ -81,11 +81,11 @@ void	init_mlx(t_raycaster *cub3d)
     cub3d->img.pix_ptr = mlx_get_data_addr(cub3d->img.img_ptr,
             &cub3d->img.bpp, &cub3d->img.line_len, &cub3d->img.endian);
     cub3d->background_color = 0xA9A9A9;
-    cub3d->px = 160;
-    cub3d->py = 400;
+    cub3d->px = 96;
+    cub3d->py = 96;
     cub3d->col = 8;
     cub3d->lines = 8;
-    cub3d->pa = 0;
+    cub3d->pa = PI/2;
     cub3d->pdx = cos(cub3d->pa) * 5; //cos(0)=1
     cub3d->pdy = sin(cub3d->pa) * 5; //sin(0)=0
 }
