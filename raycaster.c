@@ -4,11 +4,13 @@
 # include "mlx/mlx.h"
 # include <X11/X.h>
 # include <X11/keysym.h>
-# define WIDTH 1400
-# define HEIGHT 700
-# define MINIMAP_WIDTH 700
+# define WIDTH 1280
+# define HEIGHT 720
+# define MINIMAP_WIDTH 200
+# define MINIMAP_SCALE 0.2
 # define PX_SIZE 64
 # define PI 3.14159265358979323846
+# define NUM_RAYS 60
 
 typedef struct s_img
 {
@@ -138,23 +140,23 @@ void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
 
 void	draw_player(t_raycaster *cub3d, int size)
 {
-    int center_x = cub3d->px;
-    int center_y = cub3d->py;
-    int yellow = 0xFFFF00; // Couleur jaune
-    int x = -size / 2;
+    int center_x = cub3d->px * MINIMAP_SCALE;
+    int center_y = cub3d->py * MINIMAP_SCALE;
+    int yellow = 0xFFFF00;
+    int x = -(size * MINIMAP_SCALE) / 2;
     int y;
 
-    while (x <= size / 2)
+    while (x <= (size * MINIMAP_SCALE) / 2)
     {
-        y = -size / 2;
-        while (y <= size / 2)
+        y = -(size * MINIMAP_SCALE) / 2;
+        while (y <= (size * MINIMAP_SCALE) / 2)
         {
             my_pixel_put(center_x + x, center_y + y, &cub3d->img, yellow);
             y++;
         }
         x++;
     }
-    draw_line(&cub3d->img, center_x, center_y, center_x + (int)(cub3d->pdx * 5), center_y + (int)(cub3d->pdy * 5), yellow);
+    draw_line(&cub3d->img, center_x, center_y, center_x + (int)(cub3d->pdx * 5 * MINIMAP_SCALE), center_y + (int)(cub3d->pdy * 5 * MINIMAP_SCALE), yellow);
 }
 
 void    draw_background(t_raycaster *cub3d)
@@ -194,6 +196,7 @@ void    draw_map(t_raycaster *cub3d)
     int xo; // Position du carré en pixels
     int yo;
     int color;
+    int scale = PX_SIZE * MINIMAP_SCALE;
  
     while (y < cub3d->lines)
     {
@@ -206,15 +209,15 @@ void    draw_map(t_raycaster *cub3d)
             else
                 color = 0x000000;
             // Parcourir les pixels
-            xo = x * PX_SIZE; 
-            yo = y * PX_SIZE;
+            xo = x * scale; 
+            yo = y * scale;
 
             // Dessiner le carré -1 pour la grille
             int i = xo + 1;
-            while (i < xo + PX_SIZE - 1)
+            while (i < xo + scale - 1)
             {
                 int j = yo + 1;
-                while (j < yo + PX_SIZE - 1)
+                while (j < yo + scale - 1)
                 {
                     my_pixel_put(i, j, &cub3d->img, color);
                     j++;
@@ -242,15 +245,31 @@ void drawRays2D(t_raycaster *cub3d)
         1,0,0,0,0,0,0,1,
         1,0,0,0,0,1,0,1,
         1,0,0,0,0,0,0,1,
-        1,1,1,1,1,1,1,1,	
+        1,1,1,1,1,1,1,1,    
     };
 
-    ra = cub3d->pa - (PI/6);
-    if (ra < 0)
-        ra += 2*PI;
-    r = 0;
+    // Draw floor and ceiling in 3D view
+    int x = 0;
+    while (x < WIDTH)
+    {
+        int y = 0;
+        while (y < HEIGHT)
+        {
+            if (y > HEIGHT/2)  // Floor
+                my_pixel_put(x, y, &cub3d->img, 0x4A4A4A);
+            y++;
+        }
+        x++;
+    }
 
-    while (r < 60)
+    // Modifier l'angle de départ et l'incrément
+    float angleStep = (PI/3) / NUM_RAYS;  // Angle entre chaque rayon
+    ra = cub3d->pa - (PI/6);  // Start 30 degrees to the left
+
+    r = 0;
+    float slice_width = (float)WIDTH / NUM_RAYS;  // Calculate width for each slice
+
+    while (r < NUM_RAYS)  // 60 rays for 60 degree FOV
     {
         // --- Check Horizontal lines ---
         dof = 0;
@@ -364,44 +383,50 @@ void drawRays2D(t_raycaster *cub3d)
         {
             rx = vx;
             ry = vy;
-            disT=disV;
-            cub3d->wall_color = 0xE60000;
-            draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0x0000FF); // Blue for vertical
+            disT = disV;
+            cub3d->wall_color = 0xE60000;  // Lighter red for vertical walls
+            //draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0x0000FF);
         }
         else
         {
             rx = hx;
             ry = hy;
-            disT=disH;
-            cub3d->wall_color = 0xB30000;
-            draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0xFF0000); // Red for horizontal
+            disT = disH;
+            cub3d->wall_color = 0xB30000;  // Darker red for horizontal walls
+            //draw_line(&cub3d->img, cub3d->px, cub3d->py, rx, ry, 0xFF0000);
         }
+    
         // Draw 3D walls
+        // Modifier la correction fisheye
         float ca = cub3d->pa - ra;
-        if (ca < 0)
-            ca += 2*PI;
-        if (ca > 2*PI)
-            ca -= 2*PI;
-        disT = disT * cos(ca); // Fix fisheye effect
+        if (ca < 0) ca += 2*PI;
+        if (ca > 2*PI) ca -= 2*PI;
+        disT = disT * cos(ca);  // Fix fisheye
         
+        // Ajuster la hauteur des murs
         float lineH = (PX_SIZE * HEIGHT) / disT;
+        float lineO = (HEIGHT - lineH) / 2;  // Centre vertical
+
         if (lineH > HEIGHT)
+        {
             lineH = HEIGHT;
-        
-        float lineO = (HEIGHT/2) - (lineH/2); // Line offset
+            lineO = 0;
+        }
+
+        // Draw wall slice with calculated width
         int i = 0;
-        while (i < 8) // Width of the wall slice
+        while (i < slice_width)  // Use calculated slice width instead of fixed 8
         {
             int j = 0;
             while (j < lineH)
             {
-                my_pixel_put(r*8 + i + WIDTH/2, j + lineO, &cub3d->img, cub3d->wall_color);
+                my_pixel_put(r * slice_width + i, j + lineO, &cub3d->img, cub3d->wall_color);
                 j++;
             }
             i++;
         }
 
-        ra += (PI/180);
+        ra += angleStep;  // Utiliser l'angle calculé au lieu de PI/180
         if (ra > 2*PI)
             ra -= 2*PI;
         r++;
@@ -411,9 +436,9 @@ void drawRays2D(t_raycaster *cub3d)
 void	cub3d_draw(t_raycaster *cub3d)
 {
     draw_background(cub3d);
+    drawRays2D(cub3d);
     draw_map(cub3d);
     draw_player(cub3d, 8);
-    drawRays2D(cub3d);
     mlx_put_image_to_window(cub3d->mlx_ptr, cub3d->win_ptr,
         cub3d->img.img_ptr, 0, 0);
 }
@@ -452,8 +477,21 @@ int	key_hook(int keysym, t_raycaster *cub3d)
     return (0);
 }
 
+//if(map[y * cub3d->col + x] == 1)
+
 int moves(int key, t_raycaster *cub3d)
 {
+    int map[]=
+    {
+    1,1,1,1,1,1,1,1,
+    1,0,1,0,0,0,0,1,
+    1,0,1,0,0,0,0,1,
+    1,0,1,0,0,0,0,1,
+    1,0,0,0,0,0,0,1,
+    1,0,0,0,0,1,0,1,
+    1,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,	
+    };
     if (key == XK_Escape)
         end_cub3d(cub3d);
     else if (key == XK_Right) // Turn right 
@@ -474,23 +512,51 @@ int moves(int key, t_raycaster *cub3d)
     }  
     else if (key == XK_w) // Avancer
     {
-        cub3d->px += cub3d->pdx;
-        cub3d->py += cub3d->pdy;
+        double new_px = cub3d->px + cub3d->pdx;
+        double new_py = cub3d->py + cub3d->pdy;
+        int map_x = (int)(new_px / PX_SIZE);
+        int map_y = (int)(new_py / PX_SIZE);
+        if(map[map_y * cub3d->col + map_x] == 0)
+        {
+            cub3d->px += cub3d->pdx;
+            cub3d->py += cub3d->pdy;
+        }
     }
     else if (key == XK_s) // Reculer
     {
-        cub3d->px -= cub3d->pdx;
-        cub3d->py -= cub3d->pdy;
+        double new_px = cub3d->px - cub3d->pdx;
+        double new_py = cub3d->py - cub3d->pdy;
+        int map_x = (int)(new_px / PX_SIZE);
+        int map_y = (int)(new_py / PX_SIZE);
+        if(map[map_y * cub3d->col + map_x] == 0)
+        {
+            cub3d->px -= cub3d->pdx;
+            cub3d->py -= cub3d->pdy;
+        }
     }
     else if (key == XK_a) // se decaler a gauche
     {
-        cub3d->px += cos(cub3d->pa - PI/2) * 5;
-        cub3d->py += sin(cub3d->pa - PI/2) * 5;
+        double new_px = cub3d->px + cos(cub3d->pa - PI/2) * 5;
+        double new_py = cub3d->py + sin(cub3d->pa - PI/2) * 5;
+        int map_x = (int)(new_px / PX_SIZE);
+        int map_y = (int)(new_py / PX_SIZE);
+        if(map[map_y * cub3d->col + map_x] == 0)
+        {
+            cub3d->px = new_px;
+            cub3d->py = new_py;
+        }
     }
     else if (key == XK_d) // se decaler a droite
     {
-        cub3d->px += cos(cub3d->pa + PI/2) * 5;
-        cub3d->py += sin(cub3d->pa + PI/2) * 5;
+        double new_px = cub3d->px + cos(cub3d->pa + PI/2) * 5;
+        double new_py = cub3d->py + sin(cub3d->pa + PI/2) * 5;
+        int map_x = (int)(new_px / PX_SIZE);
+        int map_y = (int)(new_py / PX_SIZE);
+        if(map[map_y * cub3d->col + map_x] == 0)
+        {
+            cub3d->px = new_px;
+            cub3d->py = new_py;
+        }
     }
     cub3d_draw(cub3d);
     return (0);
