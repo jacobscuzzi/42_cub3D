@@ -443,40 +443,6 @@ void	cub3d_draw(t_raycaster *cub3d)
         cub3d->img.img_ptr, 0, 0);
 }
 
-int	key_hook(int keysym, t_raycaster *cub3d)
-{
-    if (keysym == XK_Escape)
-        end_cub3d(cub3d);
-    if (keysym == XK_d) // Tourner à gauche
-    {
-        cub3d->pa += 0.1;
-        if (cub3d->pa > 2*PI)
-            cub3d->pa -= 2*PI;
-        cub3d->pdx = cos(cub3d->pa) * 5;
-        cub3d->pdy = sin(cub3d->pa) * 5;
-    }
-    else if (keysym == XK_a) // Tourner à droite
-    {
-        cub3d->pa -= 0.1;
-        if (cub3d->pa < 0)
-            cub3d->pa += 2*PI;
-        cub3d->pdx = cos(cub3d->pa) * 5;
-        cub3d->pdy = sin(cub3d->pa) * 5;
-    }  
-    else if (keysym == XK_w) // Avancer
-    {
-        cub3d->px += cub3d->pdx;
-        cub3d->py += cub3d->pdy;
-    }
-    else if (keysym == XK_s) // Reculer
-    {
-        cub3d->px -= cub3d->pdx;
-        cub3d->py -= cub3d->pdy;
-    }
-    cub3d_draw(cub3d);
-    return (0);
-}
-
 //if(map[y * cub3d->col + x] == 1)
 
 int moves(int key, t_raycaster *cub3d)
