@@ -4,13 +4,14 @@
 # include "mlx/mlx.h"
 # include <X11/X.h>
 # include <X11/keysym.h>
-# define WIDTH 1280
-# define HEIGHT 720
+# define WIDTH 1280 // multiple de 64
+# define HEIGHT 704 // multiple de 64
 # define MINIMAP_WIDTH 200
 # define MINIMAP_SCALE 0.2
 # define PX_SIZE 64
 # define PI 3.14159265358979323846
-# define NUM_RAYS 60
+# define FOV (PI / 3) // Field of view
+# define NUM_RAYS 64
 
 typedef struct s_img
 {
@@ -27,10 +28,12 @@ typedef struct s_raycaster
     void	*win_ptr;
     t_img	img;
     int     background_color;
+    int     ceiling_color;
+    int     floor_color;
     int     wall_color;
     double  px; // Position du joueur
     double  py; // Position du joueur
-    double  pa; // Orientation du joueur en radians
+    double  player_angle; // Orientation du joueur en radians
     double  pdx; // Projection du prochain mouvement
     double  pdy;
     int     col; 
@@ -81,13 +84,15 @@ void	init_mlx(t_raycaster *cub3d)
     cub3d->img.pix_ptr = mlx_get_data_addr(cub3d->img.img_ptr,
             &cub3d->img.bpp, &cub3d->img.line_len, &cub3d->img.endian);
     cub3d->background_color = 0xA9A9A9;
+    cub3d->ceiling_color = 0x4A4A4A;
+    cub3d->floor_color = 0x696969;
     cub3d->px = 96;
     cub3d->py = 96;
     cub3d->col = 8;
     cub3d->lines = 8;
-    cub3d->pa = PI/2;
-    cub3d->pdx = cos(cub3d->pa) * 5; //cos(0)=1
-    cub3d->pdy = sin(cub3d->pa) * 5; //sin(0)=0
+    cub3d->player_angle = 3*PI/2; //looking up
+    cub3d->pdx = cos(cub3d->player_angle) * 5; //cos(0)=1
+    cub3d->pdy = sin(cub3d->player_angle) * 5; //sin(0)=0
 }
 
 int	end_cub3d(t_raycaster *cub3d)
@@ -99,6 +104,7 @@ int	end_cub3d(t_raycaster *cub3d)
     exit(0);
 }
 
+//TODO:e
 static void	my_pixel_put(int x, int y, t_img *img, int color)
 {
     int	offset;
@@ -159,7 +165,8 @@ void	draw_player(t_raycaster *cub3d, int size)
     draw_line(&cub3d->img, center_x, center_y, center_x + (int)(cub3d->pdx * 5 * MINIMAP_SCALE), center_y + (int)(cub3d->pdy * 5 * MINIMAP_SCALE), yellow);
 }
 
-void    draw_background(t_raycaster *cub3d)
+//TODO: des le debut ou juste pour minimap ?
+void    draw_background(t_raycaster *cub3d) 
 {
     int	x;
     int	y;
@@ -229,11 +236,33 @@ void    draw_map(t_raycaster *cub3d)
         y++;
     }
 }
-
+void draw_ceiling_and_floor(t_raycaster *cub3d)
+{
+    int x;
+    int y;
+    
+    x= 0;
+    while (x < WIDTH)
+    {
+        y = 0;
+        while (y < HEIGHT)
+        {
+            if (y < HEIGHT/2)
+                my_pixel_put(x, y, &cub3d->img, cub3d->ceiling_color);
+            else
+                my_pixel_put(x, y, &cub3d->img, cub3d->floor_color);
+            y++;
+        }
+        x++;
+    }
+}
 void drawRays2D(t_raycaster *cub3d)
 {
     int r, mx, my, mp, dof;
-    float rx, ry, ra, xo, yo, disT;  
+    float rx, ry, xo, yo, disT;  
+    float raysfield; // en radians
+    int slice_width; // en pixels
+    float first_ray;
     int mapX = 8;
     int mapY = 8;
     int map[64]=
@@ -248,56 +277,48 @@ void drawRays2D(t_raycaster *cub3d)
         1,1,1,1,1,1,1,1,    
     };
 
-    // Draw floor and ceiling in 3D view
-    int x = 0;
-    while (x < WIDTH)
-    {
-        int y = 0;
-        while (y < HEIGHT)
-        {
-            if (y > HEIGHT/2)  // Floor
-                my_pixel_put(x, y, &cub3d->img, 0x4A4A4A);
-            y++;
-        }
-        x++;
-    }
+    draw_ceiling_and_floor(cub3d);
 
     // Modifier l'angle de départ et l'incrément
-    float angleStep = (PI/3) / NUM_RAYS;  // Angle entre chaque rayon
-    ra = cub3d->pa - (PI/6);  // Start 30 degrees to the left
+    raysfield = FOV / NUM_RAYS;  // Angle entre chaque rayon //FOV = PI/3
+    // first_ray = angle du premier rayon
+    // player_angle = orientation du joueur (pa=PI/2)
+    first_ray= cub3d->player_angle - (PI/6);  // Start 30 degrees to the left
 
-    r = 0;
-    float slice_width = (float)WIDTH / NUM_RAYS;  // Calculate width for each slice
+    r = 0; // Ray counter
+    slice_width = WIDTH / NUM_RAYS;  // Calculate width for each slice
 
-    while (r < NUM_RAYS)  // 60 rays for 60 degree FOV
+    while (r < NUM_RAYS)  // 60 rays
     {
         // --- Check Horizontal lines ---
-        dof = 0;
-        float aTan = -1 / tan(ra);
-        float disH = 1000000, hx = cub3d->px, hy = cub3d->py;
+        //dof = depth of field (max = number of lines in the map)
+        dof = 0; //counter for the depth of field
+        float aTan = -1 / tan(first_ray);
+        float disH = 1000000, hx = cub3d->px, hy = cub3d->py; //coordonnées du mur
 
-        rx = cub3d->px;
+        rx = cub3d->px; //coordonnées du rayon
         ry = cub3d->py;
 
-        if (ra > PI) // Ray looking up
+        if (first_ray > PI) // Ray looking up
         {
-            ry = (floor(cub3d->py / 64) * 64) - 0.0001;
-            rx = (cub3d->py - ry) * aTan + cub3d->px;
-            yo = -64;
-            xo = -yo * aTan;
+            ry = (floor(cub3d->py / 64) * 64) - 0.0001; // trouve la ligne de grille horizontale au-dessus du joueur
+            rx = (cub3d->py - ry) * aTan + cub3d->px; // donne la distance verticale entre le joueur et l'intersection
+            yo = -64; // prochaine intersection
+            xo = -yo * aTan; // prochaine intersection
         }
-        else if (ra < PI) // Ray looking down
+        else if (first_ray< PI) // Ray looking down
         {
-            ry = (floor(cub3d->py / 64) * 64) + 64;
+            ry = (floor(cub3d->py / 64) * 64) + 64; // trouve la ligne de grille horizontale en dessous du joueur
             rx = (cub3d->py - ry) * aTan + cub3d->px;
-            yo = 64;
-            xo = -yo * aTan; 
+            yo = 64; //prochaine intersection
+            xo = -yo * aTan; // prochaine intersection
         }
-        else // Ray looking straight left or right
+        else // Ray looking straight left or right 
+        //risk of infinite loop because it will never find an horizontal line
         {
             rx = cub3d->px;
             ry = cub3d->py;
-            dof = 8;
+            dof = 8; //force exit
         }
 
         while (dof < 8) 
@@ -328,17 +349,17 @@ void drawRays2D(t_raycaster *cub3d)
 
         // --- Check Vertical Lines ---
         dof = 0;
-        float nTan = -tan(ra);
+        float nTan = -tan(first_ray);
         float disV = 1000000, vx = cub3d->px, vy = cub3d->py;
 
-        if (ra > PI/2 && ra < 3*PI/2) // Ray looking left
+        if (first_ray> PI/2 && first_ray< 3*PI/2) // Ray looking left
         {
             rx = (floor(cub3d->px/64) * 64) - 0.0001;
             ry = (cub3d->px - rx) * nTan + cub3d->py;
             xo = -64;
             yo = -xo * nTan;
         }
-        else if (ra < PI/2 || ra > 3*PI/2) // Ray looking right
+        else if (first_ray< PI/2 || first_ray> 3*PI/2) // Ray looking right
         {
             rx = (floor(cub3d->px/64) * 64) + 64;
             ry = (cub3d->px - rx) * nTan + cub3d->py;
@@ -398,7 +419,7 @@ void drawRays2D(t_raycaster *cub3d)
     
         // Draw 3D walls
         // Modifier la correction fisheye
-        float ca = cub3d->pa - ra;
+        float ca = cub3d->player_angle - first_ray;
         if (ca < 0) ca += 2*PI;
         if (ca > 2*PI) ca -= 2*PI;
         disT = disT * cos(ca);  // Fix fisheye
@@ -426,9 +447,9 @@ void drawRays2D(t_raycaster *cub3d)
             i++;
         }
 
-        ra += angleStep;  // Utiliser l'angle calculé au lieu de PI/180
-        if (ra > 2*PI)
-            ra -= 2*PI;
+        first_ray+= raysfield;  // Utiliser l'angle calculé au lieu de PI/180
+        if (first_ray> 2*PI)
+            first_ray-= 2*PI;
         r++;
     }
 }
@@ -462,19 +483,19 @@ int moves(int key, t_raycaster *cub3d)
         end_cub3d(cub3d);
     else if (key == XK_Right) // Turn right 
     {
-        cub3d->pa += 0.1;
-        if (cub3d->pa > 2*PI)
-            cub3d->pa -= 2*PI;
-        cub3d->pdx = cos(cub3d->pa) * 5;
-        cub3d->pdy = sin(cub3d->pa) * 5;
+        cub3d->player_angle += 0.1;
+        if (cub3d->player_angle > 2*PI)
+            cub3d->player_angle -= 2*PI;
+        cub3d->pdx = cos(cub3d->player_angle) * 5;
+        cub3d->pdy = sin(cub3d->player_angle) * 5;
     }
     else if (key == XK_Left) // Turn left
     {
-        cub3d->pa -= 0.1;
-        if (cub3d->pa < 0)
-            cub3d->pa += 2*PI;
-        cub3d->pdx = cos(cub3d->pa) * 5;
-        cub3d->pdy = sin(cub3d->pa) * 5;
+        cub3d->player_angle -= 0.1;
+        if (cub3d->player_angle < 0)
+            cub3d->player_angle += 2*PI;
+        cub3d->pdx = cos(cub3d->player_angle) * 5;
+        cub3d->pdy = sin(cub3d->player_angle) * 5;
     }  
     else if (key == XK_w) // Avancer
     {
@@ -502,8 +523,8 @@ int moves(int key, t_raycaster *cub3d)
     }
     else if (key == XK_a) // se decaler a gauche
     {
-        double new_px = cub3d->px + cos(cub3d->pa - PI/2) * 5;
-        double new_py = cub3d->py + sin(cub3d->pa - PI/2) * 5;
+        double new_px = cub3d->px + cos(cub3d->player_angle - PI/2) * 5;
+        double new_py = cub3d->py + sin(cub3d->player_angle - PI/2) * 5;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
         if(map[map_y * cub3d->col + map_x] == 0)
@@ -514,8 +535,8 @@ int moves(int key, t_raycaster *cub3d)
     }
     else if (key == XK_d) // se decaler a droite
     {
-        double new_px = cub3d->px + cos(cub3d->pa + PI/2) * 5;
-        double new_py = cub3d->py + sin(cub3d->pa + PI/2) * 5;
+        double new_px = cub3d->px + cos(cub3d->player_angle + PI/2) * 5;
+        double new_py = cub3d->py + sin(cub3d->player_angle + PI/2) * 5;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
         if(map[map_y * cub3d->col + map_x] == 0)
