@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:03:16 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/09 23:51:52 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/12 13:22:57 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <X11/keysym.h>
 
 # include "types.h"
+# include "parsing.h"
 
 # define BLOCK_SIZE 256
 
@@ -52,13 +53,5 @@ int		on_keypress(int keysymm, t_data *data);
 
 void	cub3d(t_data *data);
 void	end_game(t_data *data);
-
-// INPUT CHECK
-t_error	check_format(int argc, char **argv);
-t_error	check_input(int argc, char **argv);
-
-bool	        is_map_char(char c);
-bool            check_if_map(char *line);
-t_line_check    check_scenefile_line(char *line);
 
 #endif

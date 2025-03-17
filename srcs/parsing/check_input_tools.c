@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/12 14:50:29 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/17 05:03:54 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ bool	check_if_map(char *line)
 
 	We than print an error message as well as the line that caused the error so the user knows what to change.
 */
-t_line_check check_scenefile_line(char *line)
+t_line check_scenefile_line(char *line)
 {
 	if (is_empty_line(line) == true)
 		return (L_EMPTY);

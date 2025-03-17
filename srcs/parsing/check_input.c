@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/12 13:39:36 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/17 05:04:41 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ t_error	check_format(int argc, char **argv)
 		return (INPUT_ERR);
 	return (SUCCESS);
 }
-
 
 /*
 t_error	check_map(int fd, char *line)
@@ -57,7 +56,7 @@ t_error	check_map(int fd, char *line)
 }
 */
 
-t_error	check_line_type_status(t_line_check line_type, bool *map_started)
+t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started)
 {
 	if (line_type == L_EMPTY)
 		return (SUCCESS);
@@ -72,21 +71,22 @@ t_error	check_line_type_status(t_line_check line_type, bool *map_started)
 	}
 	if (line_type == L_MAP)
 	{
+		data->map_size.row++;
 		*map_started = true;
 		return (SUCCESS);
 	}
 	if (line_type == L_INVALID)
 		return (SCENE_LINE_ERR);
-	return (FATAL_ERROR);
+	return (FATAL_ERR);
 }
 
 
-t_error	check_scene_file(char *path)
+t_error	check_scene_file(t_data *data, char *path)
 {
 	int				fd;
 	char			*line;
 	t_error			status;
-	t_line_check	line_type;
+	t_line	line_type;
 	bool			map_started;
 
 	map_started = false;
@@ -96,11 +96,11 @@ t_error	check_scene_file(char *path)
 	line = NULL;
 	line = get_next_line(fd);
 	if (!line)
-		return (FATAL_ERROR);
+		return (FATAL_ERR);
 	while (line)
 	{
 		line_type = check_scenefile_line(line);
-		status = check_line_type_status(line_type, &map_started);
+		status = check_line_type_status(data, line_type, &map_started);
 		free(line);
 		line = NULL;
 		line = get_next_line(fd);

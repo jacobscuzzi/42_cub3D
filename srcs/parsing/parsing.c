@@ -6,22 +6,40 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/12 15:09:58 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/17 06:31:04 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
+
 t_error read_map(char *line, t_data *data, int fd)
 {
+    t_error status;
+    int i;
 
+    data->map = (char **)malloc(sizeof(char *) * data->map_size.row);
+    data->map[0] = ft_strdup(line);
+    free(line);
+    line = NULL;
+    i = 1;
+    while (i < data->map_size.row)
+    {
+        data->map[i] = get_next_line(fd);
+        if (!data->map[i])
+            return (FATAL_ERR);
+        i++;
+        free(line);
+        line = NULL;
+    }
+    return (SUCCESS);
 }
 
 t_error read_scenefile(int fd, t_data *data)
 {
     t_error      status;
     char         *line;
-    t_line_check line_type;
+    t_line line_type;
 
     line = get_next_line(fd);
     while (line)
@@ -29,11 +47,11 @@ t_error read_scenefile(int fd, t_data *data)
         line_type = check_scenefile_line(line);
         if (line_type == L_IDENTIFIER)
             status = read_identifier(line, data);
-        else if (line_type == L_MAP)
-            status = read_map(line, data, fd);
         else if (line_type == L_EMPTY)
             status = SUCCESS;
-        else if (line_type == L_INVALID)
+        else if (line_type == L_MAP)
+            return(read_map(line, data, fd));
+        else
             status = SCENE_LINE_ERR;
         if (status != SUCCESS)
             return (free(line), status);
@@ -62,7 +80,7 @@ t_error parsing(int argc, char **argv, t_data *data)
     status = check_format(argc, argv);
 	if (status != SUCCESS)
 		return (status);
-    status = check_scene_file(argv[1]);
+    status = check_scene_file(data, argv[1]);
     if (status != SUCCESS)
 		return (status);
     else
@@ -71,5 +89,9 @@ t_error parsing(int argc, char **argv, t_data *data)
     if (fd < 0)
         return (OPEN_ERR);
     status = read_scenefile(fd, data);
+    close(fd);
+    if (status != SUCCESS)
+        return (status);
+    status = map_check(data);
     return (status);
 }
