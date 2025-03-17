@@ -11,7 +11,7 @@
 # define PX_SIZE 64
 # define PI 3.14159265358979323846
 # define FOV (PI / 3) // Field of view
-# define NUM_RAYS 64
+# define NUM_RAYS 1280
 
 typedef struct s_img
 {
