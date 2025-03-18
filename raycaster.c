@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h> // Pour les fonctions trigonométriques
 # include "mlx/mlx.h"
@@ -7,21 +8,23 @@
 # define WIDTH 1280 // multiple de 64
 # define HEIGHT 704 // multiple de 64
 # define MINIMAP_WIDTH 200
-# define MINIMAP_SCALE 0.2
+# define MINIMAP_SCALE 1
 # define PX_SIZE 64
-# define PI 3.14159265358979323846
+# define PI 3.141592
 # define FOV (PI / 3) // Field of view
 # define NUM_RAYS 1280 // 1 ray per pixel (WIDTH)
+# define ROW 4
+# define COL 4
 
-static const int map[] = {
-    1,1,1,1,1,1,1,1,
-    1,0,1,0,0,0,0,1,
-    1,0,1,0,0,0,0,1,
-    1,0,1,0,0,0,0,1,
-    1,0,0,0,0,0,0,1,
-    1,0,0,0,0,1,0,1,
-    1,0,0,0,0,0,0,1,
-    1,1,1,1,1,1,1,1,
+static const char map[8][9] = {
+    "  1111  ",
+    "  1001  ",
+    "1110011 ",
+    " 100001 ",
+    "  10N01 ",
+    " 110001 ",
+    "  1001  ",
+    "  1111  "
 };
 
 typedef struct s_ray
@@ -113,10 +116,10 @@ void	init_mlx(t_raycaster *cub3d)
     cub3d->background_color = 0xA9A9A9;
     cub3d->ceiling_color = 0x4A4A4A;
     cub3d->floor_color = 0x696969;
-    cub3d->px = 96;
-    cub3d->py = 96;
+    cub3d->px = ROW * PX_SIZE + (PX_SIZE / 2); //TODO: parameter from parsing
+    cub3d->py = COL * PX_SIZE + (PX_SIZE / 2); 
     cub3d->col = 8;
-    cub3d->lines = 8;
+    cub3d->lines = 9;
     cub3d->player_angle = 3*PI/2; //looking up
     cub3d->pdx = cos(cub3d->player_angle) * 5; //cos(0)=1
     cub3d->pdy = sin(cub3d->player_angle) * 5; //sin(0)=0
@@ -143,7 +146,7 @@ static void	my_pixel_put(int x, int y, t_img *img, int color)
     }
 }
 
-//Bresenham algorithm (not mine) //TODO : delete or change
+//Bresenham algorithm (not mine) //TODO: delete or change
 void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
 {
     int dx = abs(x1 - x0); // Différence absolue en x
@@ -171,25 +174,65 @@ void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
     }
 }
 
-void	draw_player(t_raycaster *cub3d, int size)
+void    draw_map(t_raycaster *cub3d)
 {
-    int center_x = cub3d->px * MINIMAP_SCALE;
-    int center_y = cub3d->py * MINIMAP_SCALE;
-    int yellow = 0xFFFF00;
-    int x = -(size * MINIMAP_SCALE) / 2;
+    int x = 0;
+    int y = 0;
+    int xo, yo;
+    int color;
+    int scale = PX_SIZE * MINIMAP_SCALE;
+ 
+    while (y < cub3d->lines)
+    {
+        x = 0;
+        while (x < cub3d->col)
+        {
+            if(map[y][x] == '1')
+                color = 0xFFFFFF;
+            else
+                color = 0x000000;
+            
+            xo = x * scale;
+            yo = y * scale;
+
+            int i = xo;
+            while (i < xo + (scale))
+            {
+                int j = yo;
+                while (j < yo + (scale))
+                {
+                    my_pixel_put(i, j, &cub3d->img, color);
+                    j++;
+                }
+                i++;
+            }
+            x++;
+        }
+        y++;
+    }
+}
+
+void draw_player(t_raycaster *cub3d, int size)
+{
+    int center_x = cub3d->px;
+    int center_y = cub3d->py;
+    int red = 0xFF0000;
+    int x = -size/2;
     int y;
 
-    while (x <= (size * MINIMAP_SCALE) / 2)
+    while (x <= size/2)
     {
-        y = -(size * MINIMAP_SCALE) / 2;
-        while (y <= (size * MINIMAP_SCALE) / 2)
+        y = -size/2;
+        while (y <= size/2)
         {
-            my_pixel_put(center_x + x, center_y + y, &cub3d->img, yellow);
+            my_pixel_put((center_x + x) * MINIMAP_SCALE, (center_y + y) * MINIMAP_SCALE, &cub3d->img, red);
             y++;
         }
         x++;
     }
-    draw_line(&cub3d->img, center_x, center_y, center_x + (int)(cub3d->pdx * 5 * MINIMAP_SCALE), center_y + (int)(cub3d->pdy * 5 * MINIMAP_SCALE), yellow);
+    /*draw_line(&cub3d->img, center_x, center_y, 
+              center_x + (int)(cub3d->pdx * MINIMAP_SCALE), 
+              center_y + (int)(cub3d->pdy * MINIMAP_SCALE), red);*/
 }
 
 //TODO: des le debut ou juste pour minimap ?
@@ -210,7 +253,7 @@ void    draw_background(t_raycaster *cub3d)
         y++;
     }
 }
-
+/*
 void    draw_map(t_raycaster *cub3d)
 {
     int x = 0; //max = 8
@@ -226,7 +269,7 @@ void    draw_map(t_raycaster *cub3d)
         while (x < cub3d->col)
         {
             // Parcourir le tableau
-            if(map[y * cub3d->col + x] == 1)
+            if(map[y][x] == '1')
                 color = 0xFFFFFF;
             else
                 color = 0x000000;
@@ -235,11 +278,11 @@ void    draw_map(t_raycaster *cub3d)
             yo = y * scale;
 
             // Dessiner le carré -1 pour la grille
-            int i = xo + 1;
-            while (i < xo + scale - 1)
+            int i = xo;
+            while (i < xo + scale)
             {
-                int j = yo + 1;
-                while (j < yo + scale - 1)
+                int j = yo;
+                while (j < yo + scale)
                 {
                     my_pixel_put(i, j, &cub3d->img, color);
                     j++;
@@ -250,7 +293,7 @@ void    draw_map(t_raycaster *cub3d)
         }
         y++;
     }
-}
+}*/
 
 void draw_ceiling_and_floor(t_raycaster *cub3d)
 {
@@ -319,22 +362,24 @@ float init_vertical_ray(t_raycaster *cub3d, float first_ray, float *rx, float *r
     return (0);
 }
 
-int get_map_position(float rx, float ry, int *mp)
+int get_map_position(float rx, float ry)
 {
     int mx = (int)(rx) / PX_SIZE;
     int my = (int)(ry) / PX_SIZE;
     
     if (mx >= 0 && mx < 8 && my >= 0 && my < 8)
     {
-        *mp = my * 8 + mx;
-        return (1);
+        if (map[my][mx] == '1')
+            return (1);
     }
     return (0);
 }
 
-float check_wall_hit(float rx, float ry, float px, float py, int mp)
+float check_wall_hit(float rx, float ry, float px, float py)
 {
-    if (mp >= 0 && mp < 64 && map[mp] == 1)
+    int mx = (int)(rx) / PX_SIZE;
+    int my = (int)(ry) / PX_SIZE;
+    if (mx >= 0 && mx < 8 && my >= 0 && my < 8 && map[my][mx] == '1')
         return (sqrt((rx-px)*(rx-px) + (ry-py)*(ry-py)));
     return (1000000);
 }
@@ -389,15 +434,15 @@ void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width)
 float check_horizontal_lines(t_raycaster *cub3d, float first_ray, float *hx, float *hy)
 {
     float rx, ry, xo, yo;
-    int dof = 0, mp;
+    int dof = 0;
     float wall_distance = 1000000;
 
     dof = init_horizontal_ray(cub3d, first_ray, &rx, &ry, &xo, &yo);
     while (dof < 8)
     {
-        if (get_map_position(rx, ry, &mp))
+        if (get_map_position(rx, ry))
         {
-            wall_distance = check_wall_hit(rx, ry, cub3d->px, cub3d->py, mp);
+            wall_distance = check_wall_hit(rx, ry, cub3d->px, cub3d->py);
             if (wall_distance < 1000000)
             {
                 *hx = rx;
@@ -415,15 +460,15 @@ float check_horizontal_lines(t_raycaster *cub3d, float first_ray, float *hx, flo
 float check_vertical_lines(t_raycaster *cub3d, float first_ray, float *vx, float *vy)
 {
     float rx, ry, xo, yo;
-    int dof = 0, mp;
+    int dof = 0;
     float disV = 1000000;
 
     dof = init_vertical_ray(cub3d, first_ray, &rx, &ry, &xo, &yo);
     while (dof < 8)
     {
-        if (get_map_position(rx, ry, &mp))
+        if (get_map_position(rx, ry))
         {
-            disV = check_wall_hit(rx, ry, cub3d->px, cub3d->py, mp);
+            disV = check_wall_hit(rx, ry, cub3d->px, cub3d->py);
             if (disV < 1000000)
             {
                 *vx = rx;
@@ -475,12 +520,10 @@ void	cub3d_draw(t_raycaster *cub3d)
     draw_background(cub3d);
     drawRays2D(cub3d);
     draw_map(cub3d);
-    draw_player(cub3d, 8);
+    draw_player(cub3d, 2);
     mlx_put_image_to_window(cub3d->mlx_ptr, cub3d->win_ptr,
         cub3d->img.img_ptr, 0, 0);
 }
-
-//if(map[y * cub3d->col + x] == 1)
 
 int moves(int key, t_raycaster *cub3d)
 {
@@ -508,11 +551,13 @@ int moves(int key, t_raycaster *cub3d)
         double new_py = cub3d->py + cub3d->pdy;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y * cub3d->col + map_x] == 0)
+        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
         {
             cub3d->px += cub3d->pdx;
             cub3d->py += cub3d->pdy;
+            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
+        
     }
     else if (key == XK_s) // Reculer
     {
@@ -520,11 +565,13 @@ int moves(int key, t_raycaster *cub3d)
         double new_py = cub3d->py - cub3d->pdy;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y * cub3d->col + map_x] == 0)
+        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
         {
             cub3d->px -= cub3d->pdx;
             cub3d->py -= cub3d->pdy;
+            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
+        
     }
     else if (key == XK_a) // se decaler a gauche
     {
@@ -532,10 +579,11 @@ int moves(int key, t_raycaster *cub3d)
         double new_py = cub3d->py + sin(cub3d->player_angle - PI/2) * 5;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y * cub3d->col + map_x] == 0)
+        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
         {
             cub3d->px = new_px;
             cub3d->py = new_py;
+            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
     }
     else if (key == XK_d) // se decaler a droite
@@ -544,11 +592,13 @@ int moves(int key, t_raycaster *cub3d)
         double new_py = cub3d->py + sin(cub3d->player_angle + PI/2) * 5;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y * cub3d->col + map_x] == 0)
+        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
         {
             cub3d->px = new_px;
             cub3d->py = new_py;
+            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
+        
     }
     cub3d_draw(cub3d);
     return (0);
@@ -556,8 +606,6 @@ int moves(int key, t_raycaster *cub3d)
 
 void	init_events(t_raycaster *cub3d)
 {
-    //mlx_key_hook(cub3d->win_ptr, key_hook, cub3d);
-    //mlx_mouse_hook(cub3d->win_ptr, mouse_hook, cub3d);
     mlx_hook(cub3d->win_ptr,KeyPress, KeyPressMask, &moves, cub3d);
     mlx_hook(cub3d->win_ptr, DestroyNotify, 0, end_cub3d, cub3d);
 }
