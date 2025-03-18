@@ -8,7 +8,7 @@
 # define WIDTH 1280 // multiple de 64
 # define HEIGHT 704 // multiple de 64
 # define MINIMAP_WIDTH 200
-# define MINIMAP_SCALE 1
+# define MINIMAP_SCALE 0.2
 # define PX_SIZE 64
 # define PI 3.141592
 # define FOV (PI / 3) // Field of view
@@ -174,13 +174,14 @@ void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
     }
 }
 
-void    draw_map(t_raycaster *cub3d)
+void draw_map(t_raycaster *cub3d)
 {
     int x = 0;
     int y = 0;
     int xo, yo;
     int color;
-    int scale = PX_SIZE * MINIMAP_SCALE;
+    // Calculer la taille d'une case en fonction de MINIMAP_WIDTH
+    int square_size = MINIMAP_WIDTH / cub3d->col;  // Divise la largeur par le nombre de colonnes
  
     while (y < cub3d->lines)
     {
@@ -192,14 +193,14 @@ void    draw_map(t_raycaster *cub3d)
             else
                 color = 0x000000;
             
-            xo = x * scale;
-            yo = y * scale;
+            xo = x * square_size;
+            yo = y * square_size;
 
             int i = xo;
-            while (i < xo + (scale))
+            while (i < xo + square_size)
             {
                 int j = yo;
-                while (j < yo + (scale))
+                while (j < yo + square_size)
                 {
                     my_pixel_put(i, j, &cub3d->img, color);
                     j++;
@@ -214,25 +215,26 @@ void    draw_map(t_raycaster *cub3d)
 
 void draw_player(t_raycaster *cub3d, int size)
 {
-    int center_x = cub3d->px;
-    int center_y = cub3d->py;
+    int square_size = MINIMAP_WIDTH / cub3d->col;
+    // Convertir la position du joueur à l'échelle de la minimap
+    int center_x = (cub3d->px / PX_SIZE) * square_size;
+    int center_y = (cub3d->py / PX_SIZE) * square_size;
     int red = 0xFF0000;
-    int x = -size/2;
+    // Taille du joueur proportionnelle aux cases de la minimap
+    int scaled_size = size * (square_size / PX_SIZE);
+    int x = -scaled_size/2;
     int y;
 
-    while (x <= size/2)
+    while (x <= scaled_size/2)
     {
-        y = -size/2;
-        while (y <= size/2)
+        y = -scaled_size/2;
+        while (y <= scaled_size/2)
         {
-            my_pixel_put((center_x + x) * MINIMAP_SCALE, (center_y + y) * MINIMAP_SCALE, &cub3d->img, red);
+            my_pixel_put(center_x + x, center_y + y, &cub3d->img, red);
             y++;
         }
         x++;
     }
-    /*draw_line(&cub3d->img, center_x, center_y, 
-              center_x + (int)(cub3d->pdx * MINIMAP_SCALE), 
-              center_y + (int)(cub3d->pdy * MINIMAP_SCALE), red);*/
 }
 
 //TODO: des le debut ou juste pour minimap ?
@@ -253,47 +255,6 @@ void    draw_background(t_raycaster *cub3d)
         y++;
     }
 }
-/*
-void    draw_map(t_raycaster *cub3d)
-{
-    int x = 0; //max = 8
-    int y = 0;
-    int xo; // Position du carré en pixels
-    int yo;
-    int color;
-    int scale = PX_SIZE * MINIMAP_SCALE;
- 
-    while (y < cub3d->lines)
-    {
-        x = 0;
-        while (x < cub3d->col)
-        {
-            // Parcourir le tableau
-            if(map[y][x] == '1')
-                color = 0xFFFFFF;
-            else
-                color = 0x000000;
-            // Parcourir les pixels
-            xo = x * scale; 
-            yo = y * scale;
-
-            // Dessiner le carré -1 pour la grille
-            int i = xo;
-            while (i < xo + scale)
-            {
-                int j = yo;
-                while (j < yo + scale)
-                {
-                    my_pixel_put(i, j, &cub3d->img, color);
-                    j++;
-                }
-                i++;
-            }
-            x++;
-        }
-        y++;
-    }
-}*/
 
 void draw_ceiling_and_floor(t_raycaster *cub3d)
 {
@@ -556,8 +517,7 @@ int moves(int key, t_raycaster *cub3d)
             cub3d->px += cub3d->pdx;
             cub3d->py += cub3d->pdy;
             printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
-        }
-        
+        }  
     }
     else if (key == XK_s) // Reculer
     {
@@ -571,7 +531,6 @@ int moves(int key, t_raycaster *cub3d)
             cub3d->py -= cub3d->pdy;
             printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
-        
     }
     else if (key == XK_a) // se decaler a gauche
     {
@@ -598,7 +557,6 @@ int moves(int key, t_raycaster *cub3d)
             cub3d->py = new_py;
             printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
-        
     }
     cub3d_draw(cub3d);
     return (0);
