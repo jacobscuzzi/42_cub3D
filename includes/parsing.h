@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 14:51:31 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/17 05:21:32 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/18 13:44:16 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,15 @@ t_error			parsing(int argc, char **argv, t_data *data);
 t_error			check_format(int argc, char **argv);
 t_error			check_scene_file(t_data *data, char *filename);
 
-bool	        is_map_char(char c);
-bool            check_if_map(char *line);
-t_line    		check_scenefile_line(char *line);
+bool			is_map_char(char c);
+bool			check_if_map(char *line);
+t_line			check_scenefile_line(char *line);
 t_identifier 	is_identifier(char *line);
+t_error			read_identifier(char *line, t_data *data);
+
+t_error			read_texture(char *line, t_identifier identifier, t_data *data);
+
+t_error			read_color(char *line, t_identifier identifier, t_data *data);
 
 int				ft_count_words(char *line);
 char 			*set_image_pointer(t_data *data, t_identifier type);

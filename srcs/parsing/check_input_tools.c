@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_input_tools.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/17 05:03:54 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/18 14:16:47 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 bool	is_map_char(char c)
 {
 	if (c == '1' || c == '0' || c == 'N' || c == 'S' || c == 'W' || c == 'E' || c == ' ')
+		return (true);
+	if (c == '\n' || c == '\0' || c == '\t') 
 		return (true);
 	return (false);
 }
@@ -107,6 +109,5 @@ t_line check_scenefile_line(char *line)
 		return (L_MAP);
 	ft_putstr_fd("Error\nInvalid line in scene file:\n", 2);
 	ft_putstr_fd(line, 2);
-	ft_putstr_fd("\n", 2);
 	return (L_INVALID);
 }

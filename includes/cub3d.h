@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:03:16 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/12 13:22:57 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/18 17:27:38 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,12 @@
 # define RIGHT 100
 # define RESTART 114
 
+// MATH
 
-t_data	*parsing(int argc, char **argv);
+# define PI 3.14159265359
+
+
+t_error parsing(int argc, char **argv, t_data *data);
 
 // FUNCTIONS FROM OLD SO_LONG PROJECT
 

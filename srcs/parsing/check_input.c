@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_input.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/17 05:04:41 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/18 18:03:47 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started
 	}
 	if (line_type == L_INVALID)
 		return (SCENE_LINE_ERR);
-	return (FATAL_ERR);
+	return (FATAL_MALOC_ERR);
 }
 
 
@@ -96,13 +96,14 @@ t_error	check_scene_file(t_data *data, char *path)
 	line = NULL;
 	line = get_next_line(fd);
 	if (!line)
-		return (FATAL_ERR);
+		return (FATAL_MALOC_ERR);
 	while (line)
 	{
 		line_type = check_scenefile_line(line);
 		status = check_line_type_status(data, line_type, &map_started);
 		free(line);
-		line = NULL;
+		if (status != SUCCESS)
+			return (status);
 		line = get_next_line(fd);
 	}
 	close(fd);

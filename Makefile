@@ -1,6 +1,6 @@
 NAME			= cub3D
 
-CC				= gcc
+CC				= cc
 
 CFLAG			= -Wall -Wextra -Werror
 
@@ -67,10 +67,7 @@ fclean:
 re:			clean all
 
 
-run:		${NAME}
-			${VALGRIND} ./${NAME} assets/maps/valid/map4.ber
-
 valgrind:
 			@valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) map/map_standard.bar
 
-.PHONY:		all clean fclean re rebonus valgrind run run_bonus vallgrind
+.PHONY:		all clean fclean re rebonus valgrind run run_bonus vallgrind compress

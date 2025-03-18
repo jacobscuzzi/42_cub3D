@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/17 05:03:17 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/18 18:03:47 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,13 @@ typedef enum e_error
 	OPEN_ERR,
 	SCENE_LINE_ERR,
 	PATH_ERR,
+	PATH_MULTIPLE_ERR,
 	RGB_ERR,
 	RGB_NUM_ERR,
 	MAP_ERR,
-	FATAL_ERR
+	NO_GAMER_ERR,
+	MULTIPLE_GAMER_ERR,
+	FATAL_MALOC_ERR
 }	t_error;
 
 typedef enum e_identifier
@@ -52,6 +55,11 @@ typedef enum e_line
 
 
 // Structures
+typedef struct coordinate
+{
+	size_t	row;
+	size_t	column;
+}	t_coord;
 
 typedef	struct s_rgb
 {
@@ -76,14 +84,11 @@ typedef struct s_data
 	t_coord		map_size;
 	void		*mlx;
 	void		*mlx_win;
+	char		*mlx_img;
 	t_graphics	graphics;
+	t_coord		gamer_pos;
+	double		gamer_dir;
 }	t_data;
-
-typedef struct coordinate
-{
-	size_t	row;
-	size_t	column;
-}	t_coord;
 
 
 #endif
