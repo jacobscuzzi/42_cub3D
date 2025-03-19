@@ -10,7 +10,7 @@ LIBFT			= libft/libft.a
 
 LIBFT_HEADER	= libft/includes/
 
-STANDARD_FLAGS 	= -Wall -Werror -Wextra -I./includes
+STANDARD_FLAGS 	= -Wall -Werror -Wextra -I./includes -g3
 
 MLX_FLAGS	= -I$(MLX_DIR) -L$(MLX_DIR) -lmlx -L/usr/lib/X11 -lXext -lX11
 

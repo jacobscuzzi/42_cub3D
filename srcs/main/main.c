@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 17:56:31 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/19 20:27:45 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,9 +85,9 @@ t_data	*init_data(void)
 	data->mlx = mlx_init();
 	if (!data->mlx)
 		return (ft_printf("Error\n mlx_init failed\n"), NULL);
-	data->mlx_win = mlx_new_window(data->mlx, 640, 480, "Hello world!");
-	if (!data->mlx_win)
-		return (ft_printf("Error\nmlx_new_window failed\n"), NULL);
+	// data->mlx_win = mlx_new_window(data->mlx, 640, 480, "Hello world!");
+	// if (!data->mlx_win)
+	// 	return (ft_printf("Error\nmlx_new_window failed\n"), NULL);
 	return (data);
 }
 

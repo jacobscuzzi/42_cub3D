@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 18:03:47 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/19 20:30:48 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,9 @@ t_error read_scenefile(int fd, t_data *data)
 			return (free(line), status);
 		free(line);
 		line = get_next_line(fd);
+		ft_printf("line read\n");
 	}
-	return status;
+	return (status);
 }
 
 
@@ -101,14 +102,17 @@ t_error parsing(int argc, char **argv, t_data *data)
 	status = check_format(argc, argv);
 	if (status != SUCCESS)
 		return (status);
+	ft_printf("format checked\n");
 	status = check_scene_file(data, argv[1]);
 	if (status != SUCCESS)
 		return (status);
+	ft_printf("scene file checked\n");
 	fd = open(argv[1], O_RDONLY);
 	if (fd < 0)
 		return (OPEN_ERR);
 	status = read_scenefile(fd, data);
 	close(fd);
+	ft_printf("Scenefile read\n");
 	if (status != SUCCESS)
 		return (status);
 	status = map_check(data);

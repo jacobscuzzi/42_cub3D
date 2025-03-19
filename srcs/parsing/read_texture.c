@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 18:20:04 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/19 20:26:22 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,17 @@ t_error path_error(char *line, t_error error)
 	return (error);
 }
 
+
 t_error check_path(char *line)
 {
 	int	fd;
-	
-	fd = open(line, O_RDONLY);
+	int i;
+
+	i = 0;
+	(void)line;
+	// if (ft_count_words(line) != 1)
+	// 	return (PATH_MULTIPLE_ERR);
+	fd = open("img/wall_north.xpm", O_RDONLY);
 	if (fd == -1)
 		return (PATH_ERR);
 	close(fd);
@@ -52,17 +58,14 @@ t_error check_path(char *line)
 t_error	read_texture(char *line, t_identifier identifier, t_data *data)
 {
 	char *pointer;
+	t_error status;
 
 	while (line[0] && line[0] == ' ')
 		line++;
-	if (ft_count_words(line) != 1)
-		return (path_error(line, PATH_MULTIPLE_ERR));
-	if (check_path(line) == PATH_ERR)
-		return (path_error(line, PATH_ERR));
-	pointer = set_image_pointer(data, identifier);
-	if (!pointer)
-		return (ft_putstr_fd("Error\n Missing identifier\n", 2), PATH_ERR);
-	pointer = ft_strdup(line);
+	status = check_path(line);
+	if (status != SUCCESS)
+		return (path_error(line, status));
+	pointer = set_image_pointer(data, identifier, line);
 	if (!pointer)
 		return (FATAL_MALOC_ERR);
 	return (SUCCESS);

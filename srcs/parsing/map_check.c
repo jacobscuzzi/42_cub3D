@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 17:49:28 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/19 21:00:00 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ t_error map_check(t_data *data)
 	
 	player_count = 0;
 	row = 0;
+
 	while (row < data->map_size.row)
 	{
 		column = 0;

@@ -21,15 +21,20 @@ int	ft_count_words(char *line)
 	return (words);
 }
 
-char *set_image_pointer(t_data *data, t_identifier type)
+char *set_image_pointer(t_data *data, t_identifier type, char *line)
 {
+	char *pointer;
+
 	if (type == NORTH)
-		return (data->graphics.north);
+		pointer = data->graphics.north;
 	if (type == SOUTH)
-		return (data->graphics.south);
+		pointer = data->graphics.south;
 	if (type == EAST)
-		return (data->graphics.east);
+		pointer = data->graphics.east;
 	if (type == WEST)
-		return (data->graphics.west);
-	return (NULL);
+		pointer = data->graphics.west;
+	pointer = ft_strdup(line);
+	if (!pointer)
+		return (NULL);
+	return (pointer);
 }
