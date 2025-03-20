@@ -155,15 +155,26 @@ void	init_mlx(t_raycaster *cub3d)
     cub3d->pdy = sin(cub3d->player_angle) * 5; //sin(0)=0
 }
 
-int	end_cub3d(t_raycaster *cub3d)
+int end_cub3d(t_raycaster *cub3d)
 {
-    mlx_destroy_image(cub3d->mlx_ptr, cub3d->north_texture.img);
-    mlx_destroy_image(cub3d->mlx_ptr, cub3d->south_texture.img);
-    mlx_destroy_image(cub3d->mlx_ptr, cub3d->west_texture.img);
-    mlx_destroy_image(cub3d->mlx_ptr, cub3d->east_texture.img);
-    mlx_destroy_window(cub3d->mlx_ptr, cub3d->win_ptr);
-    mlx_destroy_display(cub3d->mlx_ptr);
-    free(cub3d->mlx_ptr);
+    if (cub3d->north_texture.img)
+        mlx_destroy_image(cub3d->mlx_ptr, cub3d->north_texture.img);
+    if (cub3d->south_texture.img)
+        mlx_destroy_image(cub3d->mlx_ptr, cub3d->south_texture.img);
+    if (cub3d->east_texture.img)
+        mlx_destroy_image(cub3d->mlx_ptr, cub3d->east_texture.img);
+    if (cub3d->west_texture.img)
+        mlx_destroy_image(cub3d->mlx_ptr, cub3d->west_texture.img);
+    if (cub3d->img.img_ptr)
+        mlx_destroy_image(cub3d->mlx_ptr, cub3d->img.img_ptr);
+    if (cub3d->win_ptr)
+        mlx_destroy_window(cub3d->mlx_ptr, cub3d->win_ptr);
+    if (cub3d->mlx_ptr)
+    {
+        mlx_destroy_display(cub3d->mlx_ptr);
+        free(cub3d->mlx_ptr);
+    }
+    
     exit(0);
 }
 
