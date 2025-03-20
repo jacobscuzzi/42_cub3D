@@ -1,6 +1,6 @@
 NAME			= cub3D
 
-CC				= clang
+CC				= cc
 
 CFLAG			= -Wall -Wextra -Werror -lm
 
@@ -10,7 +10,7 @@ LIBFT			= libft/libft.a
 
 LIBFT_HEADER	= libft/includes/
 
-STANDARD_FLAGS 	= -Wall -Werror -Wextra -I./includes
+STANDARD_FLAGS 	= -Wall -Werror -Wextra -I./includes -g3
 
 MLX_FLAGS	= -I$(MLX_DIR) -L$(MLX_DIR) -lmlx -L/usr/lib/X11 -lXext -lX11
 
@@ -68,10 +68,7 @@ fclean:
 re:			fclean all
 
 
-run:		${NAME}
-			${VALGRIND} ./${NAME} assets/maps/valid/map4.ber
-
 valgrind:
 			@valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) map/map_standard.bar
 
-.PHONY:		all clean fclean re valgrind run
+.PHONY:		all clean fclean re rebonus valgrind run run_bonus vallgrind compress

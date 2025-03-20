@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:03:16 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/03 15:22:11 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/18 17:27:38 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <X11/keysym.h>
 
 # include "types.h"
+# include "parsing.h"
 
 # define BLOCK_SIZE 256
 
@@ -37,8 +38,12 @@
 # define RIGHT 100
 # define RESTART 114
 
+// MATH
 
-t_data	*parsing(int argc, char **argv);
+# define PI 3.14159265359
+
+
+t_error parsing(int argc, char **argv, t_data *data);
 
 // FUNCTIONS FROM OLD SO_LONG PROJECT
 
@@ -52,12 +57,5 @@ int		on_keypress(int keysymm, t_data *data);
 
 void	cub3d(t_data *data);
 void	end_game(t_data *data);
-
-// INPUT CHECK
-t_error	check_format(int argc, char **argv);
-t_error	check_input(int argc, char **argv);
-
-bool	is_map_char(char c);
-bool	check_if_map(char *line);
 
 #endif
