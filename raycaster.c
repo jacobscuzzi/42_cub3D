@@ -139,13 +139,13 @@ void	init_mlx(t_raycaster *cub3d)
     }
     cub3d->img.pix_ptr = mlx_get_data_addr(cub3d->img.img_ptr,
             &cub3d->img.bpp, &cub3d->img.line_len, &cub3d->img.endian);
-    load_texture(cub3d, &cub3d->north_texture, "./north.xpm");
-    load_texture(cub3d, &cub3d->south_texture, "./south.xpm");
-    load_texture(cub3d, &cub3d->east_texture, "./east.xpm");
-    load_texture(cub3d, &cub3d->west_texture, "./west.xpm");
+    load_texture(cub3d, &cub3d->north_texture, "./iloveparis.xpm");
+    load_texture(cub3d, &cub3d->south_texture, "./tiles.xpm");
+    load_texture(cub3d, &cub3d->east_texture, "./doors.xpm");
+    load_texture(cub3d, &cub3d->west_texture, "./seats.xpm");
     cub3d->background_color = 0xA9A9A9;
-    cub3d->ceiling_color = 0xFF0000;
-    cub3d->floor_color = 0x0000FF;
+    cub3d->ceiling_color = 0x87CEEB;
+    cub3d->floor_color = 0x404040;
     cub3d->px = ROW * PX_SIZE + (PX_SIZE / 2); //TODO: parameter from parsing
     cub3d->py = COL * PX_SIZE + (PX_SIZE / 2); 
     cub3d->col = 8;
