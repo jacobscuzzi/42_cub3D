@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 20:00:01 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 20:30:10 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,16 +45,6 @@ void	end_game(t_data *data)
 	exit(1);
 }
 
-void	cub3d(t_data *data)
-{
-	mlx_hook(data->mlx_win, KeyRelease, KeyReleaseMask,
-		&on_keypress, data);
-	mlx_hook(data->mlx_win, DestroyNotify, StructureNotifyMask,
-		&on_destroy, data);
-	mlx_loop(data->mlx);
-	exit(0);
-	return ;
-}
 
 /*
 	DATA TYPE:

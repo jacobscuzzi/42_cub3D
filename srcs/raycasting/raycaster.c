@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   raycaster.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
+/*   Updated: 2025/03/20 20:30:40 by jbaumfal         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -678,7 +690,7 @@ void	init_events(t_raycaster *cub3d)
     mlx_hook(cub3d->win_ptr, DestroyNotify, 0, end_cub3d, cub3d);
 }
 
-int main(int argc, char **argv)
+int cub_3d(t_data *data)
 {
     t_raycaster cub3d;
 
