@@ -615,7 +615,7 @@ int moves(int key, t_raycaster *cub3d)
         {
             cub3d->px += cub3d->pdx;
             cub3d->py += cub3d->pdy;
-            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }  
     }
     else if (key == XK_s) // Reculer
@@ -628,7 +628,7 @@ int moves(int key, t_raycaster *cub3d)
         {
             cub3d->px -= cub3d->pdx;
             cub3d->py -= cub3d->pdy;
-            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
     }
     else if (key == XK_a) // se decaler a gauche
@@ -641,7 +641,7 @@ int moves(int key, t_raycaster *cub3d)
         {
             cub3d->px = new_px;
             cub3d->py = new_py;
-            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
     }
     else if (key == XK_d) // se decaler a droite
@@ -654,7 +654,7 @@ int moves(int key, t_raycaster *cub3d)
         {
             cub3d->px = new_px;
             cub3d->py = new_py;
-            printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
         }
     }
     cub3d_draw(cub3d);
