@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing_utils.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/20 19:06:35 by jbaumfal          #+#    #+#             */
+/*   Updated: 2025/03/20 19:49:46 by jbaumfal         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int	ft_count_words(char *line)
@@ -25,16 +37,27 @@ char *set_image_pointer(t_data *data, t_identifier type, char *line)
 {
 	char *pointer;
 
+	pointer = NULL;
+	ft_printf("set image pointer with line: %s\n", line);
 	if (type == NORTH)
+	{
+		data->graphics.north = ft_strdup(line);
 		pointer = data->graphics.north;
-	if (type == SOUTH)
+	}
+	else if (type == SOUTH)
+	{
+		data->graphics.south = ft_strdup(line);
 		pointer = data->graphics.south;
-	if (type == EAST)
-		pointer = data->graphics.east;
-	if (type == WEST)
+	}
+	else if (type == WEST)
+	{
+		data->graphics.west = ft_strdup(line);
 		pointer = data->graphics.west;
-	pointer = ft_strdup(line);
-	if (!pointer)
-		return (NULL);
+	}
+	else if (type == EAST)
+	{
+		data->graphics.east = ft_strdup(line);
+		pointer = data->graphics.east;
+	}
 	return (pointer);
 }

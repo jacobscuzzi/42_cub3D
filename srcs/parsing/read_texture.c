@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/19 20:26:22 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 19:25:38 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,13 @@ t_error check_path(char *line)
 	int i;
 
 	i = 0;
-	(void)line;
+	while (line[i] && line[i] != '\n' && line[i] != '\0')
+		i++;
+	line[i] = '\0';
 	// if (ft_count_words(line) != 1)
 	// 	return (PATH_MULTIPLE_ERR);
-	fd = open("img/wall_north.xpm", O_RDONLY);
+	//ft_printf("line before open: %s\n", line);
+	fd = open(line, O_RDONLY);
 	if (fd == -1)
 		return (PATH_ERR);
 	close(fd);

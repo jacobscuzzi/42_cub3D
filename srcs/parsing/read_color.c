@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:33 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/19 20:54:48 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 19:58:23 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ t_error check_after_last_digit(char *line, int i)
 	while (line[i] && line[i] == ' ')
 		i++;
 	if (line[i] != '\0' && line[i] != '\n')
-		return (ft_printf("this 3\n"), rgb_error(line, RGB_ERR));
+		return (rgb_error(line, RGB_ERR));
 	return (SUCCESS);
 }
 
@@ -65,9 +65,9 @@ t_error	check_rgb(char *line)
 	{
 		digit_count = ft_count_digits(line, i);
 		if (digit_count > 3)
-			return (ft_printf("this 1\n"), rgb_error(line, RGB_NUM_ERR));
+			return (rgb_error(line, RGB_NUM_ERR));
 		if (digit_count == 0)
-			return (ft_printf("this 2\n"), rgb_error(line, RGB_ERR));
+			return (rgb_error(line, RGB_ERR));
 		number_count++;
 		i += digit_count;
 		if (number_count == 3)
@@ -75,11 +75,16 @@ t_error	check_rgb(char *line)
 		else
 		{
 			if (line[i] != ',')
-				return (ft_printf("this 4\n"), rgb_error(line, RGB_ERR));
+				return (rgb_error(line, RGB_ERR));
 			i++;
 		}
 	}
 	return (rgb_error(line, RGB_ERR));
+}
+
+void	transform_rgb_to_hex(t_rgb *rgb)
+{
+	rgb->hex = (rgb->red << 16) + (rgb->green << 8) + rgb->blue;
 }
 
 t_error	read_color(char *line, t_identifier identifier, t_data *data)
@@ -99,9 +104,9 @@ t_error	read_color(char *line, t_identifier identifier, t_data *data)
 	rgb.green = ft_atoi(line);
 	line += ft_count_digits(line, 0) + 1;
 	rgb.blue = ft_atoi(line);
-	ft_printf("red: %d, green: %d, blue: %d\n", rgb.red, rgb.green, rgb.blue);
 	if (rgb.red > 255 || rgb.green > 255 || rgb.blue > 255)
-		return (ft_printf("this 5\n"), rgb_error(line, RGB_NUM_ERR));
+		return (rgb_error(line, RGB_NUM_ERR));
+	transform_rgb_to_hex(&rgb);
 	if (identifier == FLOOR)
 		data->graphics.floor = rgb;
 	else

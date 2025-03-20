@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/19 21:05:23 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 19:00:23 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ t_error	check_map(int fd, char *line)
 }
 */
 
-t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started)
+t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started, char *line)
 {
 	if (line_type == L_EMPTY)
 		return (SUCCESS);
@@ -72,6 +72,8 @@ t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started
 	if (line_type == L_MAP)
 	{
 		data->map_size.row++;
+		if (data->map_size.column < ft_strlen(line))
+			data->map_size.column = ft_strlen(line);
 		*map_started = true;
 		return (SUCCESS);
 	}
@@ -100,7 +102,7 @@ t_error	check_scene_file(t_data *data, char *path)
 	while (line)
 	{
 		line_type = check_scenefile_line(line);
-		status = check_line_type_status(data, line_type, &map_started);
+		status = check_line_type_status(data, line_type, &map_started, line);
 		free(line);
 		if (status != SUCCESS)
 			return (status);

@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 18:03:47 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 19:55:10 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ typedef	struct s_rgb
 	int	red;
 	int	green;
 	int	blue;
+	int	hex;
 }	t_rgb;
 
 typedef struct s_graphics

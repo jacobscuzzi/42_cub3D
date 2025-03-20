@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/19 20:27:45 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 20:00:01 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,35 @@ t_data	*init_data(void)
 }
 
 
+void	print_data(t_data *data)
+{
+	size_t	i;
+
+	i = 0;
+	printf("Map:\n");
+	while (i < data->map_size.row)
+	{
+		printf("%s", data->map[i]);
+		i++;
+	}
+	printf("\n");
+	printf("Map Size:\n");
+	printf("Row: %zu\n", data->map_size.row);
+	printf("Column: %zu\n", data->map_size.column);
+	printf("Player Position:\n");
+	printf("Row: %zu\n", data->gamer_pos.row);
+	printf("Column: %zu\n", data->gamer_pos.column);
+	printf("Player Direction: %f\n", data->gamer_dir);
+	printf("Graphics:\n");
+	printf("North: %s\n", data->graphics.north);
+	printf("South: %s\n", data->graphics.south);
+	printf("West: %s\n", data->graphics.west);
+	printf("East: %s\n", data->graphics.east);
+	printf("Floor: r:%d g:%d b:%d x:%x\n", data->graphics.floor.red, data->graphics.floor.green, data->graphics.floor.blue, data->graphics.floor.hex);
+	printf("Ceiling: r:%d g:%d b:%d x:%x\n", data->graphics.ceiling.red, data->graphics.ceiling.green, data->graphics.ceiling.blue, data->graphics.ceiling.hex);
+}
+
+
 int	main(int argc, char **argv)
 {
 	t_data	*data;
@@ -105,6 +134,7 @@ int	main(int argc, char **argv)
 		return (ft_error(status), 1);
 	else
 		ft_putstr_fd("Succesful Parcing\n", 1);
+	print_data(data);
 	//cub3d(data);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 14:16:47 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 19:44:45 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ bool	is_empty_line(char *line)
 	i = 0;
 	while (line[i] && (line[i] == ' ' || line[i] == '\t'))
 		i++;
-	if (line[i] == '\0')
+	if (line[i] == '\0' || line[i] == '\n')
 		return (true);
 	return (false);
 }
