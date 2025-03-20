@@ -462,12 +462,21 @@ void drawRays2D(t_raycaster *cub3d)
 
         if (disV < wall_distance)
         {
-            cub3d->wall_color = 0xE60000;  // Vertical walls
+            // vertical walls
+            if (first_ray > PI/2 && first_ray < 3*PI/2)
+            cub3d->wall_color = 0x0000FF;  //West
+            else
+                cub3d->wall_color = 0x00FF00;  //East
             wall_distance = disV;
         }
         else
-            cub3d->wall_color = 0xB30000;  // Horizontal walls
-
+        {
+            // horizontal walls
+            if (first_ray > PI)
+                cub3d->wall_color = 0xFF0000;  //North
+            else
+                cub3d->wall_color = 0xFFFF00;  //South
+        }
         wall_distance = fix_fisheye(wall_distance, cub3d->player_angle, first_ray);
         draw_wall_slice(cub3d, r, wall_distance, slice_width);
 
