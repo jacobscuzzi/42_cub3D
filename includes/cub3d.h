@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:03:16 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/18 17:27:38 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/20 20:32:03 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 # include "types.h"
 # include "parsing.h"
+# include "raycasting.h"
 
 # define BLOCK_SIZE 256
 
