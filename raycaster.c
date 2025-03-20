@@ -414,12 +414,15 @@ void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int
 {
     float lineH = (PX_SIZE * HEIGHT) / disT;
     float lineO = (HEIGHT - lineH) / 2;
-    float step = 64.0 / lineH;
+    float ratio = 64.0 / lineH; //image size / wall height 
+    // step = 1, 1 texture pixel -> 1 wall pixel
+    // step = 0.5, 1 texture pixel -> 2 wall pixel
+    // step = 2, 2 texture pixels -> 1 wall pixel
     float tex_pos = 0;
 
     if (lineH > HEIGHT)
     {
-        tex_pos = (lineH - HEIGHT) / 2.0 * step;
+        tex_pos = (lineH - HEIGHT) / 2.0 * ratio;
         lineH = HEIGHT;
         lineO = 0;
     }
@@ -447,7 +450,7 @@ void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int
                 (tex_y * current_texture->line_length + 
                 tex_x * (current_texture->bits_per_pixel / 8)));
             my_pixel_put(r * slice_width + i, j + lineO, &cub3d->img, color);
-            tex_current += step;
+            tex_current += ratio;
             j++;
         }
         i++;
