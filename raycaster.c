@@ -44,6 +44,24 @@ typedef struct s_img
     int		endian;
 }			t_img;
 
+typedef struct s_texture {
+    void    *img;
+    char    *addr;
+    int     bits_per_pixel;
+    int     line_length;
+    int     endian;
+    int     width;
+    int     height;
+} t_texture;
+
+typedef enum e_direction
+{
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST
+}   t_direction;
+
 typedef struct s_raycaster
 {
     void	*mlx_ptr;
@@ -60,15 +78,23 @@ typedef struct s_raycaster
     double  pdy;
     int     col; 
     int     lines;
+    t_texture north_texture;
+    t_texture south_texture;
+    t_texture east_texture;
+    t_texture west_texture;
+    t_direction direction;
 }   t_raycaster;
+
+
 
 void init_ray_casting(t_raycaster *cub3d, float *first_ray, float *raysfield, int *slice_width);
 void cast_horizontal_ray(t_raycaster *cub3d, float ray_angle, t_ray *ray);
 void cast_vertical_ray(t_raycaster *cub3d, float ray_angle, t_ray *ray);
-void draw_wall_slice(t_raycaster *cub3d, int ray_num, float distance, int slice_width);
+void draw_wall_slice(t_raycaster *cub3d, int ray_num, float distance, int slice_width, int tex_x);
 float check_horizontal_lines(t_raycaster *cub3d, float ray_angle, float *hx, float *hy);
 float check_vertical_lines(t_raycaster *cub3d, float ray_angle, float *vx, float *vy);
-void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width);
+void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int tex_x);
+void load_texture(t_raycaster *cub3d, t_texture *texture, char *path);
 
 void	ft_putstr_fd(char *s, int fd)
 {
@@ -113,9 +139,13 @@ void	init_mlx(t_raycaster *cub3d)
     }
     cub3d->img.pix_ptr = mlx_get_data_addr(cub3d->img.img_ptr,
             &cub3d->img.bpp, &cub3d->img.line_len, &cub3d->img.endian);
+    load_texture(cub3d, &cub3d->north_texture, "./north.xpm");
+    load_texture(cub3d, &cub3d->south_texture, "./south.xpm");
+    load_texture(cub3d, &cub3d->east_texture, "./east.xpm");
+    load_texture(cub3d, &cub3d->west_texture, "./west.xpm");
     cub3d->background_color = 0xA9A9A9;
-    cub3d->ceiling_color = 0x4A4A4A;
-    cub3d->floor_color = 0x696969;
+    cub3d->ceiling_color = 0xFF0000;
+    cub3d->floor_color = 0x0000FF;
     cub3d->px = ROW * PX_SIZE + (PX_SIZE / 2); //TODO: parameter from parsing
     cub3d->py = COL * PX_SIZE + (PX_SIZE / 2); 
     cub3d->col = 8;
@@ -127,7 +157,10 @@ void	init_mlx(t_raycaster *cub3d)
 
 int	end_cub3d(t_raycaster *cub3d)
 {
-    mlx_destroy_image(cub3d->mlx_ptr, cub3d->img.img_ptr);
+    mlx_destroy_image(cub3d->mlx_ptr, cub3d->north_texture.img);
+    mlx_destroy_image(cub3d->mlx_ptr, cub3d->south_texture.img);
+    mlx_destroy_image(cub3d->mlx_ptr, cub3d->west_texture.img);
+    mlx_destroy_image(cub3d->mlx_ptr, cub3d->east_texture.img);
     mlx_destroy_window(cub3d->mlx_ptr, cub3d->win_ptr);
     mlx_destroy_display(cub3d->mlx_ptr);
     free(cub3d->mlx_ptr);
@@ -367,7 +400,17 @@ float fix_fisheye(float distance, float player_angle, float ray_angle)
     return distance * cos(ca);
 }
 
-void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width)
+void load_texture(t_raycaster *cub3d, t_texture *texture, char *path)
+{
+    texture->img = mlx_xpm_file_to_image(cub3d->mlx_ptr, path, 
+                                        &texture->width, &texture->height);
+    if (!texture->img)
+        ft_error();
+    texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
+                                     &texture->line_length, &texture->endian);
+}
+
+void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int tex_x)
 {
     float lineH = (PX_SIZE * HEIGHT) / disT;
     float lineO = (HEIGHT - lineH) / 2;
@@ -384,8 +427,22 @@ void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width)
         int j = 0;
         while (j < lineH)
         {
-            my_pixel_put(r * slice_width + i, j + lineO, &cub3d->img, 
-                        cub3d->wall_color);
+            int tex_y = (j * 64) / lineH;
+            t_texture *current_texture;
+
+            if (cub3d->direction == 1)
+                current_texture = &cub3d->north_texture;
+            else if (cub3d->direction == 2)
+                current_texture = &cub3d->south_texture;
+            else if (cub3d->direction == 3)
+                current_texture = &cub3d->east_texture;
+            else
+                current_texture = &cub3d->west_texture;
+
+            int color = *(int*)(current_texture->addr + 
+                (tex_y * current_texture->line_length + 
+                tex_x * (current_texture->bits_per_pixel / 8)));
+            my_pixel_put(r * slice_width + i, j + lineO, &cub3d->img, color);
             j++;
         }
         i++;
@@ -449,8 +506,11 @@ void drawRays2D(t_raycaster *cub3d)
     float raysfield, first_ray;  
     int slice_width;
     float hx, hy, vx, vy;
+    // hx, hy: coordinates of the wall impact point for horizontal intersections
+    // vx, vy: coordinates of the wall impact point for vertical intersections
     float wall_distance, disV;
     int r = 0;
+    int tex_x;
 
     draw_ceiling_and_floor(cub3d);
     init_ray_casting(cub3d, &first_ray, &raysfield, &slice_width);
@@ -464,26 +524,39 @@ void drawRays2D(t_raycaster *cub3d)
         {
             // vertical walls
             if (first_ray > PI/2 && first_ray < 3*PI/2)
-            cub3d->wall_color = 0x0000FF;  //West
+            {
+                cub3d->direction = 4;  // West
+                tex_x = (int)vy % 64;  // Position x dans la texture
+            }
             else
-                cub3d->wall_color = 0x00FF00;  //East
+            {
+                cub3d->direction = 3;  // East
+                tex_x = (int)vy % 64;
+            }
             wall_distance = disV;
         }
         else
         {
             // horizontal walls
             if (first_ray > PI)
-                cub3d->wall_color = 0xFF0000;  //North
+            {
+                tex_x = (int)hx % 64;  // Position x dans la texture pour mur nord
+                cub3d->direction = 1;   // Flag pour indiquer un mur nord
+            }
             else
-                cub3d->wall_color = 0xFFFF00;  //South
+            {
+                tex_x = (int)hx % 64;  // South
+                cub3d->direction = 2;
+            }
         }
         wall_distance = fix_fisheye(wall_distance, cub3d->player_angle, first_ray);
-        draw_wall_slice(cub3d, r, wall_distance, slice_width);
+        draw_wall_slice(cub3d, r, wall_distance, slice_width, tex_x);
 
         first_ray = normalize_angle(first_ray + raysfield);
         r++;
     }
 }
+
 
 void	cub3d_draw(t_raycaster *cub3d)
 {
@@ -493,6 +566,15 @@ void	cub3d_draw(t_raycaster *cub3d)
     draw_player(cub3d, 2);
     mlx_put_image_to_window(cub3d->mlx_ptr, cub3d->win_ptr,
         cub3d->img.img_ptr, 0, 0);
+    /*
+    int		img_width;
+	int		img_height;
+
+    cub3d->img.img_ptr = mlx_xpm_file_to_image(cub3d->mlx_ptr,
+        "./wall_lvl0.xpm", &img_width, &img_height);;
+    mlx_put_image_to_window(cub3d->mlx_ptr, cub3d->win_ptr,
+        cub3d->img.img_ptr, 700, 200);
+    */
 }
 
 int moves(int key, t_raycaster *cub3d)
