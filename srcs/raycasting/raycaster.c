@@ -6,38 +6,12 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 20:30:40 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/21 15:32:06 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h> // Pour les fonctions trigonométriques
-# include "mlx/mlx.h"
-# include <X11/X.h>
-# include <X11/keysym.h>
-# define WIDTH 1280 // multiple de 64
-# define HEIGHT 704 // multiple de 64
-# define MINIMAP_WIDTH 200
-# define MINIMAP_SCALE 0.2
-# define PX_SIZE 64
-# define PI 3.141592
-# define FOV (PI / 3) // Field of view
-# define NUM_RAYS 1280 // 1 ray per pixel (WIDTH)
-# define ROW 4
-# define COL 4
+#include "cub3d.h"
 
-static const char map[8][9] = {
-    "  1111  ",
-    "  1001  ",
-    "1110011 ",
-    " 100001 ",
-    "  10N01 ",
-    " 110001 ",
-    "  1001  ",
-    "  1111  "
-};
 
 typedef struct s_ray
 {
@@ -68,10 +42,10 @@ typedef struct s_texture {
 
 typedef enum e_direction
 {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST
+    D_NORTH,
+    D_SOUTH,
+    D_EAST,
+    D_WEST
 }   t_direction;
 
 typedef struct s_raycaster
@@ -122,7 +96,7 @@ void	ft_putstr_fd(char *s, int fd)
     }
 }
 
-static void	ft_error(void)
+static void	ft_error_ray(void)
 {
     ft_putstr_fd("malloc failed\n", STDERR_FILENO);
     exit(1);
@@ -132,14 +106,14 @@ void	init_mlx(t_raycaster *cub3d)
 {
     cub3d->mlx_ptr = mlx_init();
     if (!cub3d->mlx_ptr)
-        ft_error();
+        ft_error_ray();
     cub3d->win_ptr = mlx_new_window(cub3d->mlx_ptr, WIDTH, HEIGHT,
             "cub3D");
     if (!cub3d->win_ptr)
     {
         mlx_destroy_display(cub3d->mlx_ptr);
         free(cub3d->mlx_ptr);
-        ft_error();
+        ft_error_ray();
     }
     cub3d->img.img_ptr = mlx_new_image(cub3d->mlx_ptr, WIDTH, HEIGHT);
     if (!cub3d->img.img_ptr)
@@ -147,7 +121,7 @@ void	init_mlx(t_raycaster *cub3d)
         mlx_destroy_window(cub3d->mlx_ptr, cub3d->win_ptr);
         mlx_destroy_display(cub3d->mlx_ptr);
         free(cub3d->mlx_ptr);
-        ft_error();
+        ft_error_ray();
     }
     cub3d->img.pix_ptr = mlx_get_data_addr(cub3d->img.img_ptr,
             &cub3d->img.bpp, &cub3d->img.line_len, &cub3d->img.endian);
@@ -428,7 +402,7 @@ void load_texture(t_raycaster *cub3d, t_texture *texture, char *path)
     texture->img = mlx_xpm_file_to_image(cub3d->mlx_ptr, path, 
                                         &texture->width, &texture->height);
     if (!texture->img)
-        ft_error();
+        ft_error_ray();
     texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
                                      &texture->line_length, &texture->endian);
 }
@@ -561,7 +535,7 @@ void drawRays2D(t_raycaster *cub3d)
             }
             else
             {
-                cub3d->direction = 3;  // East
+                cub3d->direction = 3;  // D_EAST
                 tex_x = (int)vy % 64;
             }
             wall_distance = disV;
@@ -576,7 +550,7 @@ void drawRays2D(t_raycaster *cub3d)
             }
             else
             {
-                tex_x = (int)hx % 64;  // South
+                tex_x = (int)hx % 64;  // D_SOUTH
                 cub3d->direction = 2;
             }
         }
@@ -694,11 +668,10 @@ int cub_3d(t_data *data)
 {
     t_raycaster cub3d;
 
-    (void)argc;
-    (void)argv;
-
+	(void)data;
     init_mlx(&cub3d);
     cub3d_draw(&cub3d);
     init_events(&cub3d);
     mlx_loop(cub3d.mlx_ptr);
+	return (SUCCESS);
 }

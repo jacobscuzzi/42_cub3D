@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/02 14:35:27 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:14:42 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/21 15:34:32 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ size_t	ft_strlen(const char *str)
 	int	i;
 
 	i = 0;
-	while (str[i] != '\0' && str[i] != '\n') 
+	while (str[i] != '\0')
 		i++;
 	return (i);
 }

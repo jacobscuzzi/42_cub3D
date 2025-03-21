@@ -2,8 +2,6 @@ NAME			= cub3D
 
 CC				= cc
 
-CFLAG			= -Wall -Wextra -Werror -lm
-
 LIBFT_PATH		= libft/
 
 LIBFT			= libft/libft.a
@@ -22,20 +20,23 @@ INCLUDE_DIRS = -I$(INCLUDE_DIR) -I$(LIBFT_PATH)/includes
 
 SRCS_DIR = ./srcs/
 
-OBJ_DIR = ./obj
-
-
-OBJ_FILES		= $(patsubst $(SRCS_DIR)/%.c,$(OBJ_DIR)/%.o,$(FILES))
-
 MLX_DIR         = ./mlx
 
-FILES			= raycaster.c 
+FILES			= $(shell find $(SRCS_DIR) -type f -name '*.c')
+
+OBJ_FILES = $(FILES:.c=.o)
 
 SRCS			= $(FILES)
 
 all : ${NAME}
 
-${MLX}
+debug:
+	@echo "Source files: $(FILES)"
+	@echo "Object files that should be created: $(OBJ_FILES)"
+	@echo "Object directory: $(OBJ_DIR)"
+	@ls -la $(SRCS_DIR) || echo "Source directory issue!"
+	@mkdir -p $(OBJ_DIR) && ls -la $(OBJ_DIR) || echo "Cannot create/access object directory!"
+
 
 ${LIBFT}:
 	make -C $(LIBFT_PATH)
@@ -43,27 +44,25 @@ ${LIBFT}:
 ${MLX_DIR}/libmlx.a:
 	make -C $(MLX_DIR)
 
+%.o: %.c
+	$(CC) $(STANDARD_FLAGS) $(INCLUDE_DIRS) -c $< -o $@
+
 $(NAME): $(OBJ_FILES) $(LIBFT) ${MLX_DIR}/libmlx.a
-		@$(CC) $(OBJ_FILES) $(LIBFT) ${STANDARD_FLAGS} ${MLX_FLAGS} -o ${NAME} -lm
+		$(CC) $(OBJ_FILES) $(LIBFT) ${STANDARD_FLAGS} -lm ${MLX_FLAGS} -o ${NAME}
 
-$(OBJ_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJ_DIR)
-	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) $(INCLUDE_DIRS) -c $< -o $@
-
-$(OBJ_DIR):
-	@mkdir -p $(OBJ_DIR)
 
 clean:
 	make clean -C libft
+	make clean -C $(LIBFT_PATH)
+	make clean -C $(MLX_DIR)
+	find $(SRCS_DIR) -name "*.o" -type f -delete
+	rm -f $(NAME)
+
+fclean: clean
+	@make clean -C libft
 	@make clean -C $(LIBFT_PATH)
 	@make clean -C $(MLX_DIR)
-	@rm -rf $(OBJ_DIR)
 
-fclean:
-	${REMOVE} ${NAME} ${BONUS}
-	@make fclean -C $(LIBFT_PATH)
-	@make clean -C $(MLX_DIR)
-	@echo "${NAME}: ${NAME} were deleted${RESET}"
 
 re:			fclean all
 
