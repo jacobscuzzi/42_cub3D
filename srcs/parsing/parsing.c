@@ -3,14 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:29:43 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 20:23:28 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+void	free_gnl(int fd)
+{
+	char	*line;
+
+	line = get_next_line(fd);
+	while (line)
+	{
+		free(line);
+		line = get_next_line(fd);
+	}
+	free(line);
+}
 
 t_error read_map(char *line, t_data *data, int fd)
 {
@@ -19,17 +32,15 @@ t_error read_map(char *line, t_data *data, int fd)
 	data->map = (char **)malloc(sizeof(char *) * data->map_size.row);
 	data->map[0] = ft_strdup(line);
 	free(line);
-	line = NULL;
 	i = 1;
 	while (i < data->map_size.row)
 	{
 		data->map[i] = get_next_line(fd);
 		if (!data->map[i])
-			return (FATAL_MALOC_ERR);
+			return (free_gnl(fd), FATAL_MALOC_ERR);
 		i++;
-		free(line);
-		line = NULL;
 	}
+	free_gnl(fd);
 	return (SUCCESS);
 }
 
@@ -80,6 +91,7 @@ t_error read_scenefile(int fd, t_data *data)
 		free(line);
 		line = get_next_line(fd);
 	}
+	free(line);
 	return (status);
 }
 

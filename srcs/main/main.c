@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/21 15:34:51 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 20:07:20 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,6 @@ void	ft_error(t_error error_type)
 	if (error_type == MULTIPLE_GAMER_ERR)
 		ft_putstr_fd("Error\nMultiple players found in map\n", 2);
 }
-
-void	end_game(t_data *data)
-{
-	mlx_destroy_window(data->mlx, data->mlx_win);
-	mlx_destroy_display(data->mlx);
-	exit(1);
-}
-
-
 /*
 	DATA TYPE:
 
@@ -73,8 +64,8 @@ t_data	*init_data(void)
 	data->gamer_pos.row = -1;
 	data->gamer_pos.column = -1;
 	data->mlx = mlx_init();
-	if (!data->mlx)
-		return (ft_printf("Error\n mlx_init failed\n"), NULL);
+	//if (!data->mlx)
+	//	return (ft_printf("Error\n mlx_init failed\n"), NULL);}
 	// data->mlx_win = mlx_new_window(data->mlx, 640, 480, "Hello world!");
 	// if (!data->mlx_win)
 	// 	return (ft_printf("Error\nmlx_new_window failed\n"), NULL);
@@ -126,5 +117,6 @@ int	main(int argc, char **argv)
 		ft_putstr_fd("Succesful Parcing\n", 1);
 	print_data(data);
 	//cub3d(data);
+	clean_up(data);
 	return (0);
 }
