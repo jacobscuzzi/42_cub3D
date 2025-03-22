@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 20:07:20 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 20:28:35 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 	*/
 void	ft_error(t_error error_type)
 {
+	ft_printf("Error Type: %d\n", error_type);
 	if (error_type == INPUT_ERR)
 		ft_putstr_fd("Error\nInvalid Input\nNeeds 1 (*.cub) file as input\n", 2);
 	if (error_type == OPEN_ERR)
@@ -63,6 +64,10 @@ t_data	*init_data(void)
 	data->gamer_dir = -1;
 	data->gamer_pos.row = -1;
 	data->gamer_pos.column = -1;
+	data->graphics.north = NULL;
+	data->graphics.south = NULL;
+	data->graphics.west = NULL;
+	data->graphics.east = NULL;
 	data->mlx = mlx_init();
 	//if (!data->mlx)
 	//	return (ft_printf("Error\n mlx_init failed\n"), NULL);}
@@ -112,7 +117,7 @@ int	main(int argc, char **argv)
 		return (1);
 	status = parsing(argc, argv, data);
 	if (status != SUCCESS)
-		return (ft_error(status), 1);
+		return (clean_up(data), ft_error(status), 1);
 	else
 		ft_putstr_fd("Succesful Parcing\n", 1);
 	print_data(data);
