@@ -3,14 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 14:51:31 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/19 18:57:44 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 17:10:26 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
 
 #ifndef PARSING_H
 # define PARSING_H

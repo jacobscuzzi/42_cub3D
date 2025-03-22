@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   map_check.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:30:13 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 15:50:09 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-bool	is_surrounded(t_data *data, size_t row, size_t column)
+bool	is_surrounded(t_data *data, int row, int column)
 {
 	if (row == 0 || row == data->map_size.row)
 		return (false);
@@ -32,7 +32,7 @@ bool	is_player(char c)
 	return (false);
 }
 
-void	read_player(t_data *data, size_t row, size_t column)
+void	read_player(t_data *data, int row, int column)
 {
 	data->gamer_pos.row = row;
 	data->gamer_pos.column = column;
@@ -57,8 +57,8 @@ t_error player_check(int player_count)
 
 t_error map_check(t_data *data)
 {
-	size_t	row;
-	size_t	column;
+	int	row;
+	int	column;
 	int		player_count;
 	
 	player_count = 0;

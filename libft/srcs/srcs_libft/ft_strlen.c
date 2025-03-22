@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/02 14:35:27 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/21 15:34:32 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 16:42:21 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 
+//modified for cub3d project
 size_t	ft_strlen(const char *str)
 {
 	int	i;

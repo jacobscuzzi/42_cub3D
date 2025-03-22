@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:29:43 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 15:50:13 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 t_error read_map(char *line, t_data *data, int fd)
 {
-	size_t	i;
+	int	i;
 
 	data->map = (char **)malloc(sizeof(char *) * data->map_size.row);
 	data->map[0] = ft_strdup(line);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:55:10 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 16:40:56 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,14 +52,20 @@ typedef enum e_line
 	L_INVALID
 }	t_line;
 
-
-
 // Structures
 typedef struct coordinate
 {
-	size_t	row;
-	size_t	column;
+	int	column;
+	int	row;
 }	t_coord;
+
+typedef struct s_ray
+{
+    float rx, ry;
+    float xo, yo;
+    float distance;
+    int wall_hit;
+} t_ray;
 
 typedef	struct s_rgb
 {
@@ -79,16 +85,52 @@ typedef struct s_graphics
 	t_rgb	ceiling;
 }	t_graphics;
 
+typedef struct s_img
+{
+    void	*img_ptr;
+    char	*pix_ptr;
+    int		bpp;
+    int		line_len;
+    int		endian;
+}			t_img;
+
+typedef struct s_texture {
+    void    *img;
+    char    *addr;
+    int     bits_per_pixel;
+    int     line_length;
+    int     endian;
+    int     width;
+    int     height;
+} t_texture;
+
+typedef enum e_direction
+{
+    D_NORTH,
+    D_SOUTH,
+    D_EAST,
+    D_WEST
+}   t_direction;
+
 typedef struct s_data
 {
 	char		**map;
 	t_coord		map_size;
-	void		*mlx;
-	void		*mlx_win;
-	char		*mlx_img;
-	t_graphics	graphics;
+	void		*mlx_ptr;
+	void		*win_ptr;
+	t_img		img;
+	t_graphics	graphics; //(char *)paths + colors
 	t_coord		gamer_pos;
 	double		gamer_dir;
+	t_texture	north_texture;
+    t_texture	south_texture;
+    t_texture	east_texture;
+    t_texture	west_texture;
+	double  px; // player's position in pixels
+    double  py;
+	double  pdx; // player's position after the next move
+    double  pdy;
+	t_direction direction;
 }	t_data;
 
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_input.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:00:23 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/22 16:43:05 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started
 	if (line_type == L_MAP)
 	{
 		data->map_size.row++;
-		if (data->map_size.column < ft_strlen(line))
-			data->map_size.column = ft_strlen(line);
+		if (data->map_size.column < (int)ft_strlen(line))
+			data->map_size.column = (int)ft_strlen(line);
 		*map_started = true;
 		return (SUCCESS);
 	}
