@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 17:14:58 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/23 20:52:42 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,7 +280,7 @@ void draw_ceiling_and_floor(t_data *data)
     int x;
     int y;
     
-    x= 0;
+    x = 0;
     while (x < WIDTH)
     {
         y = 0;
@@ -386,6 +386,7 @@ float fix_fisheye(float distance, float gamer_dir, float ray_angle)
     return distance * cos(ca);
 }
 
+/*
 void load_texture(t_data *data, t_texture *texture, char *path)
 {
     texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
@@ -394,6 +395,51 @@ void load_texture(t_data *data, t_texture *texture, char *path)
         ft_error_ray();
     texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
                                      &texture->line_length, &texture->endian);
+}
+*/
+
+void load_texture(t_data *data, t_texture *texture, char *path)
+{
+    if (!path || !data || !texture)
+        ft_error_ray();
+
+    // Initialize all fields to 0
+    texture->img = NULL;
+    texture->addr = NULL;
+    texture->bits_per_pixel = 0;
+    texture->line_length = 0;
+    texture->endian = 0;
+    texture->width = 0;
+    texture->height = 0;
+
+    // Load the image
+    texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
+                                        &texture->width, &texture->height);
+    if (!texture->img)
+    {
+        printf("Error loading texture: %s\n", path);
+        ft_error_ray();
+    }
+
+    // Get the image data
+    texture->addr = mlx_get_data_addr(texture->img, 
+                                     &texture->bits_per_pixel,
+                                     &texture->line_length,
+                                     &texture->endian);
+    if (!texture->addr)
+    {
+        mlx_destroy_image(data->mlx_ptr, texture->img);
+        ft_error_ray();
+    }
+
+    // Verify texture dimensions
+    if (texture->width != 64 || texture->height != 64)
+    {
+        printf("Invalid texture dimensions: %dx%d (expected 64x64)\n", 
+               texture->width, texture->height);
+        mlx_destroy_image(data->mlx_ptr, texture->img);
+        ft_error_ray();
+    }
 }
 
 void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x)
@@ -421,15 +467,15 @@ void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x
         while (j < lineH)
         {
             int tex_y = (int)tex_current % 64;
-            t_texture *current_texture;
+            t_texture *current_texture = NULL;
 
-            if (data->direction == 1)
+            if (data->direction == D_NORTH)
                 current_texture = &data->north_texture;
-            else if (data->direction == 2)
+            else if (data->direction == D_SOUTH)
                 current_texture = &data->south_texture;
-            else if (data->direction == 3)
+            else if (data->direction == D_WEST)
                 current_texture = &data->west_texture;
-            else
+            else if (data->direction == D_EAST)
                 current_texture = &data->east_texture;
 
             int color = *(int*)(current_texture->addr + 
@@ -506,8 +552,8 @@ void raycasting(t_data *data)
     int r = 0;
     int tex_x;
 
-    draw_ceiling_and_floor(data);
-    init_ray_casting(data, &first_ray, &raysfield, &slice_width);
+    draw_ceiling_and_floor(data); //good
+    init_ray_casting(data, &first_ray, &raysfield, &slice_width); //good
 
     while (r < NUM_RAYS)
     {
@@ -519,12 +565,12 @@ void raycasting(t_data *data)
             // vertical walls
             if (first_ray > PI/2 && first_ray < 3*PI/2)
             {
-                data->direction = 4;  // West
+                data->direction = D_WEST;  // West
                 tex_x = (int)vy % 64;  // Position x dans la texture
             }
             else
             {
-                data->direction = 3;  // D_EAST
+                data->direction = D_EAST;  // D_EAST
                 tex_x = (int)vy % 64;
             }
             wall_distance = disV;
@@ -535,12 +581,12 @@ void raycasting(t_data *data)
             if (first_ray > PI)
             {
                 tex_x = (int)hx % 64;  // Position x dans la texture pour mur nord
-                data->direction = 1;   // Flag pour indiquer un mur nord
+                data->direction = D_NORTH;   // Flag pour indiquer un mur nord
             }
             else
             {
                 tex_x = (int)hx % 64;  // D_SOUTH
-                data->direction = 2;
+                data->direction = D_SOUTH;
             }
         }
         wall_distance = fix_fisheye(wall_distance, data->gamer_dir, first_ray);

@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 16:56:39 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/23 19:53:42 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,18 +114,25 @@ void	print_data(t_data *data)
 
 int	main(int argc, char **argv)
 {
-	t_data	*data;
+	t_data	data;
 	t_error	status;
 
-	data = init_data();
-	if (!data)
-		return (1);
-	status = parsing(argc, argv, data);
+	//data = init_data();
+	//if (!data)
+	//	return (1);
+	ft_memset(&data, 0, sizeof(t_data));
+    data.map = NULL;
+    data.map_size.column = 0;
+    data.map_size.row = 0;
+    data.gamer_dir = -1;
+    data.gamer_pos.row = -1;
+    data.gamer_pos.column = -1;
+	status = parsing(argc, argv, &data);
 	if (status != SUCCESS)
 		return (ft_error(status), 1);
 	else
 		ft_putstr_fd("Succesful Parcing\n", 1);
-	print_data(data);
-	cub_3d(data);
+	print_data(&data);
+	cub_3d(&data);
 	return (0);
 }
