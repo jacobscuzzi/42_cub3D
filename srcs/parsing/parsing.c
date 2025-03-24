@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 18:57:37 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 23:38:17 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ char	*fill_map_line(char *line, t_data *data)
 		if (j < (int)ft_strlen(line))
 		{
 			if (line[j] == ' ' || line[j] == '\0')
-				row[j] = '1';
+				row[j] = ' ';
 			else
 				row[j] = line[j];
 		}
 		else
-			row[j] = '1';
+			row[j] = ' ';
 		j++;
 	}
 	row[j] = '\0';
@@ -45,12 +45,12 @@ t_error read_map(char *line, t_data *data, int fd)
 
 	data->map = (char **)malloc(sizeof(char *) * data->map_size.row);
 	if (!data->map)
-		return (FATAL_MALOC_ERR);
+		return (free_gnl(fd), FATAL_MALOC_ERR);
 	data->map[0] = fill_map_line(line, data);
 	free(line);
 	line = NULL;
 	if (!data->map[0])
-		return (FATAL_MALOC_ERR);
+		return (free_gnl(fd), FATAL_MALOC_ERR);
 	i = 1;
 	while (i < data->map_size.row)
 	{
@@ -80,7 +80,7 @@ t_error read_identifier(char *line, t_data *data)
     t_identifier    identifier;
 	t_error			status;
 
-	while (line[0] && line[0] == ' ')
+	while (ft_is_space(line[0]))
 		line++;
     identifier = is_identifier(line);
 	if (identifier == NORTH || identifier == SOUTH || identifier == WEST || identifier == EAST)
@@ -110,11 +110,12 @@ t_error read_scenefile(int fd, t_data *data)
 		else
 			status = SCENE_LINE_ERR;
 		if (status != SUCCESS)
-			return (free(line), status);
+			return (free(line), free_gnl(fd), status);
 		free(line);
 		line = get_next_line(fd);
 	}
 	free(line);
+	free_gnl(fd);
 	return (status);
 }
 
@@ -131,7 +132,7 @@ t_error read_scenefile(int fd, t_data *data)
 t_error parsing(int argc, char **argv, t_data *data)
 {
 	t_error status;
-	int     fd;
+	int		fd;
 
 	status = check_format(argc, argv);
 	if (status != SUCCESS)

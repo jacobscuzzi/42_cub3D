@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 16:01:30 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 21:58:06 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,19 +40,19 @@ t_identifier is_identifier(char *line)
 {
 	if (strlen(line) < 3)
 		return (NONE);
-	while (*line == ' ')
+	while (ft_is_space(line[0]))
 		line++;
-	if (line[0] == 'N' && line[1] == 'O' && line[2] == ' ')
+	if (line[0] == 'N' && line[1] == 'O' && ft_is_space(line[2]))
 		return (NORTH);
-	if (line[0] == 'S' && line[1] == 'O' && line[2] == ' ')
+	if (line[0] == 'S' && line[1] == 'O' && ft_is_space(line[2]))
 		return (SOUTH);
-	if (line[0] == 'W' && line[1] == 'E' && line[2] == ' ')
+	if (line[0] == 'W' && line[1] == 'E' && ft_is_space(line[2]))
 		return (WEST);
-	if (line[0] == 'E' && line[1] == 'A' && line[2] == ' ')
+	if (line[0] == 'E' && line[1] == 'A' && ft_is_space(line[2]))
 		return (EAST);
-	if (line[0] == 'F' && line[1] == ' ')
+	if (line[0] == 'F' && ft_is_space(line[1]))
 		return (FLOOR);
-	if (line[0] == 'C' && line[1] == ' ')
+	if (line[0] == 'C' && ft_is_space(line[1]))
 		return (CEILING);
 	return (NONE);
 }
@@ -62,7 +62,7 @@ bool	is_empty_line(char *line)
 	int	i;
 
 	i = 0;
-	while (line[i] && (line[i] == ' ' || line[i] == '\t'))
+	while (ft_is_space(line[i]))
 		i++;
 	if (line[i] == '\0' || line[i] == '\n')
 		return (true);
