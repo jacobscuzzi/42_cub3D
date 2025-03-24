@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 19:06:38 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/24 19:20:42 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,7 @@ int end_data(t_data *data)
         mlx_destroy_display(data->mlx_ptr);
         free(data->mlx_ptr);
     }
+    clean_up(data);
     exit(0);
 }
 
