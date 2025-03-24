@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   raycaster.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/21 15:32:06 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 19:20:42 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-
+/*
 typedef struct s_ray
 {
     float rx, ry;
@@ -54,12 +54,12 @@ typedef struct s_raycaster
     void	*win_ptr;
     t_img	img;
     int     background_color;
-    int     ceiling_color;
-    int     floor_color;
+    int     graphics->ceiling;
+    int     graphics->floor;
     int     wall_color;
     double  px; // Position du joueur
     double  py; // Position du joueur
-    double  player_angle; // Orientation du joueur en radians
+    double  gamer_dir; // Orientation du joueur en radians
     double  pdx; // Projection du prochain mouvement
     double  pdy;
     int     col; 
@@ -69,18 +69,8 @@ typedef struct s_raycaster
     t_texture east_texture;
     t_texture west_texture;
     t_direction direction;
-}   t_raycaster;
-
-
-
-void init_ray_casting(t_raycaster *cub3d, float *first_ray, float *raysfield, int *slice_width);
-void cast_horizontal_ray(t_raycaster *cub3d, float ray_angle, t_ray *ray);
-void cast_vertical_ray(t_raycaster *cub3d, float ray_angle, t_ray *ray);
-void draw_wall_slice(t_raycaster *cub3d, int ray_num, float distance, int slice_width, int tex_x);
-float check_horizontal_lines(t_raycaster *cub3d, float ray_angle, float *hx, float *hy);
-float check_vertical_lines(t_raycaster *cub3d, float ray_angle, float *vx, float *vy);
-void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int tex_x);
-void load_texture(t_raycaster *cub3d, t_texture *texture, char *path);
+}   t_data;
+*/
 
 void	ft_putstr_fd(char *s, int fd)
 {
@@ -96,76 +86,75 @@ void	ft_putstr_fd(char *s, int fd)
     }
 }
 
-static void	ft_error_ray(void)
+void	ft_error_ray(void)
 {
     ft_putstr_fd("malloc failed\n", STDERR_FILENO);
     exit(1);
 }
 
-void	init_mlx(t_raycaster *cub3d)
+void init_parameters(t_data *data)
 {
-    cub3d->mlx_ptr = mlx_init();
-    if (!cub3d->mlx_ptr)
-        ft_error_ray();
-    cub3d->win_ptr = mlx_new_window(cub3d->mlx_ptr, WIDTH, HEIGHT,
-            "cub3D");
-    if (!cub3d->win_ptr)
-    {
-        mlx_destroy_display(cub3d->mlx_ptr);
-        free(cub3d->mlx_ptr);
-        ft_error_ray();
-    }
-    cub3d->img.img_ptr = mlx_new_image(cub3d->mlx_ptr, WIDTH, HEIGHT);
-    if (!cub3d->img.img_ptr)
-    {
-        mlx_destroy_window(cub3d->mlx_ptr, cub3d->win_ptr);
-        mlx_destroy_display(cub3d->mlx_ptr);
-        free(cub3d->mlx_ptr);
-        ft_error_ray();
-    }
-    cub3d->img.pix_ptr = mlx_get_data_addr(cub3d->img.img_ptr,
-            &cub3d->img.bpp, &cub3d->img.line_len, &cub3d->img.endian);
-    load_texture(cub3d, &cub3d->north_texture, "./iloveparis.xpm");
-    load_texture(cub3d, &cub3d->south_texture, "./tiles.xpm");
-    load_texture(cub3d, &cub3d->east_texture, "./doors.xpm");
-    load_texture(cub3d, &cub3d->west_texture, "./seats.xpm");
-    cub3d->background_color = 0xA9A9A9;
-    cub3d->ceiling_color = 0x87CEEB;
-    cub3d->floor_color = 0x404040;
-    cub3d->px = ROW * PX_SIZE + (PX_SIZE / 2); //TODO: parameter from parsing
-    cub3d->py = COL * PX_SIZE + (PX_SIZE / 2); 
-    cub3d->col = 8;
-    cub3d->lines = 9;
-    cub3d->player_angle = 3*PI/2; //looking up
-    cub3d->pdx = cos(cub3d->player_angle) * 5; //cos(0)=1
-    cub3d->pdy = sin(cub3d->player_angle) * 5; //sin(0)=0
+    load_texture(data, &data->north_texture, data->graphics.north);
+    load_texture(data, &data->south_texture, data->graphics.south);
+    load_texture(data, &data->west_texture, data->graphics.west);
+    load_texture(data, &data->east_texture, data->graphics.east);
+    data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel
+    data->py = (data->gamer_pos.row) * PX_SIZE + (PX_SIZE / 2); 
+    data->pdx = cos(data->gamer_dir) * 5; //cos(0)=1
+    data->pdy = sin(data->gamer_dir) * 5; //sin(0)=0
 }
 
-int end_cub3d(t_raycaster *cub3d)
+void	init_mlx(t_data *data)
 {
-    if (cub3d->north_texture.img)
-        mlx_destroy_image(cub3d->mlx_ptr, cub3d->north_texture.img);
-    if (cub3d->south_texture.img)
-        mlx_destroy_image(cub3d->mlx_ptr, cub3d->south_texture.img);
-    if (cub3d->east_texture.img)
-        mlx_destroy_image(cub3d->mlx_ptr, cub3d->east_texture.img);
-    if (cub3d->west_texture.img)
-        mlx_destroy_image(cub3d->mlx_ptr, cub3d->west_texture.img);
-    if (cub3d->img.img_ptr)
-        mlx_destroy_image(cub3d->mlx_ptr, cub3d->img.img_ptr);
-    if (cub3d->win_ptr)
-        mlx_destroy_window(cub3d->mlx_ptr, cub3d->win_ptr);
-    if (cub3d->mlx_ptr)
+    data->mlx_ptr = mlx_init();
+    if (!data->mlx_ptr)
+        ft_error_ray();
+    data->win_ptr = mlx_new_window(data->mlx_ptr, WIDTH, HEIGHT,
+            "data");
+    if (!data->win_ptr)
     {
-        mlx_destroy_display(cub3d->mlx_ptr);
-        free(cub3d->mlx_ptr);
+        mlx_destroy_display(data->mlx_ptr);
+        free(data->mlx_ptr);
+        ft_error_ray();
     }
-    
+    data->img.img_ptr = mlx_new_image(data->mlx_ptr, WIDTH, HEIGHT);
+    if (!data->img.img_ptr)
+    {
+        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+        mlx_destroy_display(data->mlx_ptr);
+        free(data->mlx_ptr);
+        ft_error_ray();
+    }
+    data->img.pix_ptr = mlx_get_data_addr(data->img.img_ptr,
+            &data->img.bpp, &data->img.line_len, &data->img.endian);
+    init_parameters(data);
+}
+
+int end_data(t_data *data)
+{
+    if (data->north_texture.img)
+        mlx_destroy_image(data->mlx_ptr, data->north_texture.img);
+    if (data->south_texture.img)
+        mlx_destroy_image(data->mlx_ptr, data->south_texture.img);
+    if (data->east_texture.img)
+        mlx_destroy_image(data->mlx_ptr, data->east_texture.img);
+    if (data->west_texture.img)
+        mlx_destroy_image(data->mlx_ptr, data->west_texture.img);
+    if (data->img.img_ptr)
+        mlx_destroy_image(data->mlx_ptr, data->img.img_ptr);
+    if (data->win_ptr)
+        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+    if (data->mlx_ptr)
+    {
+        mlx_destroy_display(data->mlx_ptr);
+        free(data->mlx_ptr);
+    }
+    clean_up(data);
     exit(0);
 }
 
 //TODO:e
-static void	my_pixel_put(int x, int y, t_img *img, int color)
+void	my_pixel_put(int x, int y, t_img *img, int color)
 {
     int	offset;
 
@@ -176,6 +165,7 @@ static void	my_pixel_put(int x, int y, t_img *img, int color)
     }
 }
 
+/*
 //Bresenham algorithm (not mine) //TODO: delete or change
 void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
 {
@@ -203,53 +193,66 @@ void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
         }
     }
 }
+*/
 
-void draw_map(t_raycaster *cub3d)
+static void	draw_square(t_data *data, int x, int y, int color)
 {
-    int x = 0;
-    int y = 0;
-    int xo, yo;
-    int color;
-    // Calculer la taille d'une case en fonction de MINIMAP_WIDTH
-    int square_size = MINIMAP_WIDTH / cub3d->col;  // Divise la largeur par le nombre de colonnes
- 
-    while (y < cub3d->lines)
+    int	i;
+    int	j;
+    int	square_size;
+    int	xo;
+    int	yo;
+
+    square_size = MINIMAP_WIDTH / data->map_size.column;
+    xo = x * square_size;
+    yo = y * square_size;
+    i = xo;
+    while (i < xo + square_size)
+    {
+        j = yo;
+        while (j < yo + square_size)
+        {
+            my_pixel_put(i, j, &data->img, color);
+            j++;
+        }
+        i++;
+    }
+}
+
+void	draw_minimap(t_data *data)
+{
+    int	x;
+    int	y;
+    int	color;
+
+    y = 0;
+    while (y < data->map_size.row)
     {
         x = 0;
-        while (x < cub3d->col)
+        while (x < data->map_size.column)
         {
-            if(map[y][x] == '1')
+            if (data->map[y][x] == '1')
                 color = 0xFFFFFF;
             else
                 color = 0x000000;
-            
-            xo = x * square_size;
-            yo = y * square_size;
-
-            int i = xo;
-            while (i < xo + square_size)
-            {
-                int j = yo;
-                while (j < yo + square_size)
-                {
-                    my_pixel_put(i, j, &cub3d->img, color);
-                    j++;
-                }
-                i++;
-            }
+            draw_square(data, x, y, color);
             x++;
         }
         y++;
     }
 }
 
-void draw_player(t_raycaster *cub3d, int size)
+void draw_player(t_data *data, int size)
 {
-    int square_size = MINIMAP_WIDTH / cub3d->col;
+    int square_size;
+    int center_x;
+    int center_y;
+    int red;
     // Convertir la position du joueur à l'échelle de la minimap
-    int center_x = (cub3d->px / PX_SIZE) * square_size;
-    int center_y = (cub3d->py / PX_SIZE) * square_size;
-    int red = 0xFF0000;
+    square_size = MINIMAP_WIDTH / data->map_size.column;
+    center_x = (data->px / PX_SIZE) * square_size;
+    center_y = (data->py / PX_SIZE) * square_size;
+    red = 0xFF0000;
     // Taille du joueur proportionnelle aux cases de la minimap
     int scaled_size = size * (square_size / PX_SIZE);
     int x = -scaled_size/2;
@@ -260,7 +263,7 @@ void draw_player(t_raycaster *cub3d, int size)
         y = -scaled_size/2;
         while (y <= scaled_size/2)
         {
-            my_pixel_put(center_x + x, center_y + y, &cub3d->img, red);
+            my_pixel_put(center_x + x, center_y + y, &data->img, red);
             y++;
         }
         x++;
@@ -268,7 +271,8 @@ void draw_player(t_raycaster *cub3d, int size)
 }
 
 //TODO: des le debut ou juste pour minimap ?
-void    draw_background(t_raycaster *cub3d) 
+/*
+void    draw_background(t_data *data) 
 {
     int	x;
     int	y;
@@ -279,35 +283,36 @@ void    draw_background(t_raycaster *cub3d)
         x = 0;
         while (x < WIDTH)
         {
-            my_pixel_put(x, y, &cub3d->img, cub3d->background_color);
+            my_pixel_put(x, y, &data->img, data->background_color);
             x++;
         }
         y++;
     }
 }
+*/
 
-void draw_ceiling_and_floor(t_raycaster *cub3d)
+void draw_ceiling_and_floor(t_data *data)
 {
     int x;
     int y;
     
-    x= 0;
+    x = 0;
     while (x < WIDTH)
     {
         y = 0;
         while (y < HEIGHT)
         {
             if (y < HEIGHT/2)
-                my_pixel_put(x, y, &cub3d->img, cub3d->ceiling_color);
+                my_pixel_put(x, y, &data->img, data->graphics.ceiling.hex);
             else
-                my_pixel_put(x, y, &cub3d->img, cub3d->floor_color);
+                my_pixel_put(x, y, &data->img, data->graphics.floor.hex);
             y++;
         }
         x++;
     }
 }
 
-float init_horizontal_ray(t_raycaster *cub3d, float first_ray, float *rx, float *ry, float *xo, float *yo)
+float init_horizontal_ray(t_data *data, float first_ray, float *rx, float *ry, float *xo, float *yo)
 {
     float aTan = -1 / tan(first_ray);
     
@@ -315,22 +320,22 @@ float init_horizontal_ray(t_raycaster *cub3d, float first_ray, float *rx, float 
         return (8);  // Skip horizontal checks
     if (first_ray > PI)  // Looking up
     {
-        *ry = (floor(cub3d->py / PX_SIZE) * PX_SIZE) - 0.0001;
-        *rx = (cub3d->py - *ry) * aTan + cub3d->px;
+        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) - 0.0001;
+        *rx = (data->py - *ry) * aTan + data->px;
         *yo = -PX_SIZE;
         *xo = -(*yo) * aTan;
     }
     else  // Looking down
     {
-        *ry = (floor(cub3d->py / PX_SIZE) * PX_SIZE) + PX_SIZE;
-        *rx = (cub3d->py - *ry) * aTan + cub3d->px;
+        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) + PX_SIZE;
+        *rx = (data->py - *ry) * aTan + data->px;
         *yo = PX_SIZE;
         *xo = -(*yo) * aTan;
     }
     return (0);
 }
 
-float init_vertical_ray(t_raycaster *cub3d, float first_ray, float *rx, float *ry, float *xo, float *yo)
+float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry, float *xo, float *yo)
 {
     float nTan = -tan(first_ray);
     
@@ -338,40 +343,46 @@ float init_vertical_ray(t_raycaster *cub3d, float first_ray, float *rx, float *r
         return (8);  // Skip vertical checks
     if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
     {
-        *rx = (floor(cub3d->px/PX_SIZE) * PX_SIZE) - 0.0001;
-        *ry = (cub3d->px - *rx) * nTan + cub3d->py;
+        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) - 0.0001;
+        *ry = (data->px - *rx) * nTan + data->py;
         *xo = -PX_SIZE;
         *yo = -(*xo) * nTan;
     }
     else  // Looking right
     {
-        *rx = (floor(cub3d->px/PX_SIZE) * PX_SIZE) + PX_SIZE;
-        *ry = (cub3d->px - *rx) * nTan + cub3d->py;
+        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) + PX_SIZE;
+        *ry = (data->px - *rx) * nTan + data->py;
         *xo = PX_SIZE;
         *yo = -(*xo) * nTan;
     }
     return (0);
 }
 
-int get_map_position(float rx, float ry)
+int get_map_position(t_data *data, float rx, float ry)
 {
     int mx = (int)(rx) / PX_SIZE;
     int my = (int)(ry) / PX_SIZE;
     
-    if (mx >= 0 && mx < 8 && my >= 0 && my < 8)
+    if (mx >= 0 && mx < data->map_size.column && 
+        my >= 0 && my < data->map_size.row)
     {
-        if (map[my][mx] == '1')
+        if (data->map[my][mx] == '1')
             return (1);
     }
     return (0);
 }
 
-float check_wall_hit(float rx, float ry, float px, float py)
+float check_wall_hit(t_data *data, float rx, float ry, float px, float py)
 {
     int mx = (int)(rx) / PX_SIZE;
     int my = (int)(ry) / PX_SIZE;
-    if (mx >= 0 && mx < 8 && my >= 0 && my < 8 && map[my][mx] == '1')
+    
+    if (mx >= 0 && mx < data->map_size.column && 
+        my >= 0 && my < data->map_size.row && 
+        data->map[my][mx] == '1')
+    {
         return (sqrt((rx-px)*(rx-px) + (ry-py)*(ry-py)));
+    }
     return (1000000);
 }
 
@@ -384,30 +395,76 @@ float normalize_angle(float angle)
     return angle;
 }
 
-void init_ray_casting(t_raycaster *cub3d, float *first_ray, float *raysfield, int *slice_width)
+void init_ray_casting(t_data *data, float *first_ray, float *raysfield, int *slice_width)
 {
     *raysfield = FOV / NUM_RAYS;
-    *first_ray = normalize_angle(cub3d->player_angle - FOV/2);
+    *first_ray = normalize_angle(data->gamer_dir - FOV/2);
     *slice_width = WIDTH / NUM_RAYS;
 }
 
-float fix_fisheye(float distance, float player_angle, float ray_angle)
+float fix_fisheye(float distance, float gamer_dir, float ray_angle)
 {
-    float ca = normalize_angle(player_angle - ray_angle);
+    float ca = normalize_angle(gamer_dir - ray_angle);
     return distance * cos(ca);
 }
 
-void load_texture(t_raycaster *cub3d, t_texture *texture, char *path)
+void load_texture(t_data *data, t_texture *texture, char *path)
 {
-    texture->img = mlx_xpm_file_to_image(cub3d->mlx_ptr, path, 
+    texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
                                         &texture->width, &texture->height);
     if (!texture->img)
         ft_error_ray();
+    //mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, texture->img, 100, 100);
     texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
                                      &texture->line_length, &texture->endian);
 }
 
-void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int tex_x)
+/*
+void load_texture(t_data *data, t_texture *texture, char *path)
+{
+    if (!path || !data || !texture)
+        ft_error_ray();
+
+    // Initialize all fields to 0
+    texture->img = NULL;
+    texture->addr = NULL;
+    texture->bits_per_pixel = 0;
+    texture->line_length = 0;
+    texture->endian = 0;
+    texture->width = 0;
+    texture->height = 0;
+
+    // Load the image
+    texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
+                                        &texture->width, &texture->height);
+    if (!texture->img)
+    {
+        printf("Error loading texture: %s\n", path);
+        ft_error_ray();
+    }
+
+    // Get the image data
+    texture->addr = mlx_get_data_addr(texture->img, 
+                                     &texture->bits_per_pixel,
+                                     &texture->line_length,
+                                     &texture->endian);
+    if (!texture->addr)
+    {
+        mlx_destroy_image(data->mlx_ptr, texture->img);
+        ft_error_ray();
+    }
+
+    // Verify texture dimensions
+    if (texture->width != 64 || texture->height != 64)
+    {
+        printf("Invalid texture dimensions: %dx%d (expected 64x64)\n", 
+               texture->width, texture->height);
+        mlx_destroy_image(data->mlx_ptr, texture->img);
+        ft_error_ray();
+    }
+}
+*/
+void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x)
 {
     float lineH = (PX_SIZE * HEIGHT) / disT;
     float lineO = (HEIGHT - lineH) / 2;
@@ -432,21 +489,26 @@ void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int
         while (j < lineH)
         {
             int tex_y = (int)tex_current % 64;
-            t_texture *current_texture;
+            t_texture *current_texture = NULL;
 
-            if (cub3d->direction == 1)
-                current_texture = &cub3d->north_texture;
-            else if (cub3d->direction == 2)
-                current_texture = &cub3d->south_texture;
-            else if (cub3d->direction == 3)
-                current_texture = &cub3d->east_texture;
-            else
-                current_texture = &cub3d->west_texture;
-
+            //ft_printf("direction is: %d\n", data->direction);
+            if (data->direction == D_NORTH)
+                current_texture = &data->north_texture;
+            else if (data->direction == D_SOUTH)
+                current_texture = &data->south_texture;
+            else if (data->direction == D_WEST)
+                current_texture = &data->west_texture;
+            else if (data->direction == D_EAST)
+                current_texture = &data->east_texture;
+            //ft_printf("current texture: %p\n", current_texture->addr); // BUG IS HERE (NO ADRESS)
+            //ft_printf("current texture length: %d\n", current_texture->line_length);
+            //ft_printf("current texture bits per pxl: %d\n", current_texture->bits_per_pixel);
+            //printf("playerangle = %f\n", data->gamer_dir);
             int color = *(int*)(current_texture->addr + 
                 (tex_y * current_texture->line_length + 
                 tex_x * (current_texture->bits_per_pixel / 8)));
-            my_pixel_put(r * slice_width + i, j + lineO, &cub3d->img, color);
+            //ft_printf("color before pixelput: %d\n", color);
+            my_pixel_put(r * slice_width + i, j + lineO, &data->img, color);
             tex_current += ratio;
             j++;
         }
@@ -454,21 +516,22 @@ void draw_wall_slice(t_raycaster *cub3d, int r, float disT, int slice_width, int
     }
 }
 
-float check_horizontal_lines(t_raycaster *cub3d, float first_ray, float *hx, float *hy)
+float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy)
 {
     float rx, ry, xo, yo;
     int dof = 0;
     float wall_distance = 1000000;
 
-    dof = init_horizontal_ray(cub3d, first_ray, &rx, &ry, &xo, &yo);
-    while (dof < 8)
+    dof = init_horizontal_ray(data, first_ray, &rx, &ry, &xo, &yo);
+    while (dof < data->map_size.row)
     {
-        if (get_map_position(rx, ry))
+        if (get_map_position(data, rx, ry))
         {
-            wall_distance = check_wall_hit(rx, ry, cub3d->px, cub3d->py);
+            wall_distance = check_wall_hit(data, rx, ry, data->px, data->py);
             if (wall_distance < 1000000)
             {
-                *hx = rx;
+                //printf("rx is %f\n", rx);
+                *hx = rx; // BUG (rx is negative)
                 *hy = ry;
                 return (wall_distance);
             }
@@ -480,18 +543,18 @@ float check_horizontal_lines(t_raycaster *cub3d, float first_ray, float *hx, flo
     return (wall_distance);
 }
 
-float check_vertical_lines(t_raycaster *cub3d, float first_ray, float *vx, float *vy)
+float check_vertical_lines(t_data *data, float first_ray, float *vx, float *vy)
 {
     float rx, ry, xo, yo;
     int dof = 0;
     float disV = 1000000;
 
-    dof = init_vertical_ray(cub3d, first_ray, &rx, &ry, &xo, &yo);
-    while (dof < 8)
+    dof = init_vertical_ray(data, first_ray, &rx, &ry, &xo, &yo);
+    while (dof < data->map_size.column)
     {
-        if (get_map_position(rx, ry))
+        if (get_map_position(data, rx, ry))
         {
-            disV = check_wall_hit(rx, ry, cub3d->px, cub3d->py);
+            disV = check_wall_hit(data, rx, ry, data->px, data->py);
             if (disV < 1000000)
             {
                 *vx = rx;
@@ -506,7 +569,7 @@ float check_vertical_lines(t_raycaster *cub3d, float first_ray, float *vx, float
     return (disV);
 }
 
-void drawRays2D(t_raycaster *cub3d)
+void raycasting(t_data *data)
 {
     float raysfield, first_ray;  
     int slice_width;
@@ -517,26 +580,27 @@ void drawRays2D(t_raycaster *cub3d)
     int r = 0;
     int tex_x;
 
-    draw_ceiling_and_floor(cub3d);
-    init_ray_casting(cub3d, &first_ray, &raysfield, &slice_width);
+    draw_ceiling_and_floor(data); //good
+    init_ray_casting(data, &first_ray, &raysfield, &slice_width); //good
 
     while (r < NUM_RAYS)
     {
-        wall_distance = check_horizontal_lines(cub3d, first_ray, &hx, &hy);
-        disV = check_vertical_lines(cub3d, first_ray, &vx, &vy);
-
+        wall_distance = check_horizontal_lines(data, first_ray, &hx, &hy);
+        //ft_printf("hx:%d\n", hx);
+        disV = check_vertical_lines(data, first_ray, &vx, &vy);
+        
         if (disV < wall_distance)
         {
             // vertical walls
             if (first_ray > PI/2 && first_ray < 3*PI/2)
             {
-                cub3d->direction = 4;  // West
-                tex_x = (int)vy % 64;  // Position x dans la texture
+                data->direction = D_WEST;  // West
+                tex_x = ((int)fabs(vy)) % 64;  // Position x dans la texture
             }
             else
             {
-                cub3d->direction = 3;  // D_EAST
-                tex_x = (int)vy % 64;
+                data->direction = D_EAST;  // D_EAST
+                tex_x = ((int)fabs(vy)) % 64;
             }
             wall_distance = disV;
         }
@@ -545,133 +609,130 @@ void drawRays2D(t_raycaster *cub3d)
             // horizontal walls
             if (first_ray > PI)
             {
-                tex_x = (int)hx % 64;  // Position x dans la texture pour mur nord
-                cub3d->direction = 1;   // Flag pour indiquer un mur nord
+                tex_x = ((int)fabs(hx)) % 64;  // Position x dans la texture pour mur nord
+                data->direction = D_NORTH;   // Flag pour indiquer un mur nord
             }
             else
             {
-                tex_x = (int)hx % 64;  // D_SOUTH
-                cub3d->direction = 2;
+                tex_x = ((int)fabs(hx)) % 64;  // D_SOUTH // BUG (tex_x is negative)
+                data->direction = D_SOUTH;
             }
+            //printf("direction = %d\n", data->direction);
         }
-        wall_distance = fix_fisheye(wall_distance, cub3d->player_angle, first_ray);
-        draw_wall_slice(cub3d, r, wall_distance, slice_width, tex_x);
+        wall_distance = fix_fisheye(wall_distance, data->gamer_dir, first_ray);
+        draw_wall_slice(data, r, wall_distance, slice_width, tex_x);
 
         first_ray = normalize_angle(first_ray + raysfield);
         r++;
     }
 }
 
-
-void	cub3d_draw(t_raycaster *cub3d)
+void	cub3d_draw(t_data *data)
 {
-    draw_background(cub3d);
-    drawRays2D(cub3d);
-    draw_map(cub3d);
-    draw_player(cub3d, 2);
-    mlx_put_image_to_window(cub3d->mlx_ptr, cub3d->win_ptr,
-        cub3d->img.img_ptr, 0, 0);
+    //draw_background(data);
+    raycasting(data);
+    draw_minimap(data);
+    draw_player(data, 2);
+    mlx_put_image_to_window(data->mlx_ptr, data->win_ptr,
+        data->img.img_ptr, 0, 0);
     /*
     int		img_width;
 	int		img_height;
 
-    cub3d->img.img_ptr = mlx_xpm_file_to_image(cub3d->mlx_ptr,
+    data->img.img_ptr = mlx_xpm_file_to_image(data->mlx_ptr,
         "./wall_lvl0.xpm", &img_width, &img_height);;
-    mlx_put_image_to_window(cub3d->mlx_ptr, cub3d->win_ptr,
-        cub3d->img.img_ptr, 700, 200);
+    mlx_put_image_to_window(data->mlx_ptr, data->win_ptr,
+        data->img.img_ptr, 700, 200);
     */
 }
 
-int moves(int key, t_raycaster *cub3d)
+int moves(int key, t_data *data)
 {
     if (key == XK_Escape)
-        end_cub3d(cub3d);
+        end_data(data);
     else if (key == XK_Right) // Turn right 
     {
-        cub3d->player_angle += 0.1;
-        if (cub3d->player_angle > 2*PI)
-            cub3d->player_angle -= 2*PI;
-        cub3d->pdx = cos(cub3d->player_angle) * 5;
-        cub3d->pdy = sin(cub3d->player_angle) * 5;
+        data->gamer_dir += 0.1;
+        if (data->gamer_dir > 2*PI)
+            data->gamer_dir -= 2*PI;
+        data->pdx = cos(data->gamer_dir) * 5;
+        data->pdy = sin(data->gamer_dir) * 5;
     }
     else if (key == XK_Left) // Turn left
     {
-        cub3d->player_angle -= 0.1;
-        if (cub3d->player_angle < 0)
-            cub3d->player_angle += 2*PI;
-        cub3d->pdx = cos(cub3d->player_angle) * 5;
-        cub3d->pdy = sin(cub3d->player_angle) * 5;
+        data->gamer_dir -= 0.1;
+        if (data->gamer_dir < 0)
+            data->gamer_dir += 2*PI;
+        data->pdx = cos(data->gamer_dir) * 5;
+        data->pdy = sin(data->gamer_dir) * 5;
     }  
     else if (key == XK_w) // Avancer
     {
-        double new_px = cub3d->px + cub3d->pdx;
-        double new_py = cub3d->py + cub3d->pdy;
+        double new_px = data->px + data->pdx;
+        double new_py = data->py + data->pdy;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
+        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
         {
-            cub3d->px += cub3d->pdx;
-            cub3d->py += cub3d->pdy;
-            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            data->px += data->pdx;
+            data->py += data->pdy;
+            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
         }  
     }
     else if (key == XK_s) // Reculer
     {
-        double new_px = cub3d->px - cub3d->pdx;
-        double new_py = cub3d->py - cub3d->pdy;
+        double new_px = data->px - data->pdx;
+        double new_py = data->py - data->pdy;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
+        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
         {
-            cub3d->px -= cub3d->pdx;
-            cub3d->py -= cub3d->pdy;
-            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            data->px -= data->pdx;
+            data->py -= data->pdy;
+            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
         }
     }
     else if (key == XK_a) // se decaler a gauche
     {
-        double new_px = cub3d->px + cos(cub3d->player_angle - PI/2) * 5;
-        double new_py = cub3d->py + sin(cub3d->player_angle - PI/2) * 5;
+        double new_px = data->px + cos(data->gamer_dir - PI/2) * 5;
+        double new_py = data->py + sin(data->gamer_dir - PI/2) * 5;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
+        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
         {
-            cub3d->px = new_px;
-            cub3d->py = new_py;
-            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            data->px = new_px;
+            data->py = new_py;
+            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
         }
     }
     else if (key == XK_d) // se decaler a droite
     {
-        double new_px = cub3d->px + cos(cub3d->player_angle + PI/2) * 5;
-        double new_py = cub3d->py + sin(cub3d->player_angle + PI/2) * 5;
+        double new_px = data->px + cos(data->gamer_dir + PI/2) * 5;
+        double new_py = data->py + sin(data->gamer_dir + PI/2) * 5;
         int map_x = (int)(new_px / PX_SIZE);
         int map_y = (int)(new_py / PX_SIZE);
-        if(map[map_y][map_x] == '0' || map[map_y][map_x] == 'N')
+        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
         {
-            cub3d->px = new_px;
-            cub3d->py = new_py;
-            //printf("x = %f y = %f pa = %f\n\n", cub3d->px, cub3d->py, cub3d->player_angle);
+            data->px = new_px;
+            data->py = new_py;
+            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
         }
     }
-    cub3d_draw(cub3d);
+    cub3d_draw(data);
     return (0);
 }
 
-void	init_events(t_raycaster *cub3d)
+void	init_events(t_data *data)
 {
-    mlx_hook(cub3d->win_ptr,KeyPress, KeyPressMask, &moves, cub3d);
-    mlx_hook(cub3d->win_ptr, DestroyNotify, 0, end_cub3d, cub3d);
+    mlx_hook(data->win_ptr,KeyPress, KeyPressMask, &moves, data);
+    mlx_hook(data->win_ptr, DestroyNotify, 0, end_data, data);
 }
 
-int cub_3d(t_data *data)
+int  cub_3d(t_data *data)
 {
-    t_raycaster cub3d;
-
-	(void)data;
-    init_mlx(&cub3d);
-    cub3d_draw(&cub3d);
-    init_events(&cub3d);
-    mlx_loop(cub3d.mlx_ptr);
+    init_mlx(data);
+    cub3d_draw(data);
+    init_events(data);
+    mlx_loop(data->mlx_ptr);
 	return (SUCCESS);
 }

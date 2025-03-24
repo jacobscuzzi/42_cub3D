@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
 /*   Updated: 2025/03/24 18:21:58 by jbaumfal         ###   ########.fr       */
@@ -40,18 +40,6 @@ void	ft_error(t_error error_type)
 	if (error_type == MISS_MAP_ERR)
 		ft_putstr_fd("Error\nNo map found in scene file\n", 2);
 }
-/*
-	DATA TYPE:
-
-	typedef struct s_data
-	{
-		char		**map;
-		t_coord		map_size;
-		void		*mlx;
-		void		*mlx_win;
-		t_graphics	graphics;
-	}	t_data;
-*/
 
 void	init_scene_check(t_data *data)
 {
@@ -72,7 +60,7 @@ t_data	*init_data(void)
 {
 	t_data	*data;
 
-	data = (t_data *)malloc(sizeof(t_data));
+	data = (t_data *)malloc(sizeof(t_data));  //TODO: Why malloc ?
 	if (!data)
 		return (ft_printf("Error\nMalloc failed\n"), NULL);
 	data->map = NULL;
@@ -86,19 +74,13 @@ t_data	*init_data(void)
 	data->graphics.west = NULL;
 	data->graphics.east = NULL;
 	init_scene_check(data);
-	//data->mlx = mlx_init();
-	//if (!data->mlx)
-	//	return (ft_printf("Error\n mlx_init failed\n"), NULL);}
-	// data->mlx_win = mlx_new_window(data->mlx, 640, 480, "Hello world!");
-	// if (!data->mlx_win)
-	// 	return (ft_printf("Error\nmlx_new_window failed\n"), NULL);
 	return (data);
 }
 
 
 void	print_data(t_data *data)
 {
-	size_t	i;
+	int	i;
 
 	i = 0;
 	printf("Map:\n");
@@ -109,11 +91,11 @@ void	print_data(t_data *data)
 	}
 	printf("\n");
 	printf("Map Size:\n");
-	printf("Row: %zu\n", data->map_size.row);
-	printf("Column: %zu\n", data->map_size.column);
+	printf("Row: %d\n", data->map_size.row);
+	printf("Column: %d\n", data->map_size.column);
 	printf("Player Position:\n");
-	printf("Row: %zu\n", data->gamer_pos.row);
-	printf("Column: %zu\n", data->gamer_pos.column);
+	printf("Row: %d\n", data->gamer_pos.row);
+	printf("Column: %d\n", data->gamer_pos.column);
 	printf("Player Direction: %f\n", data->gamer_dir);
 	printf("Graphics:\n");
 	printf("North: %s\n", data->graphics.north);
@@ -133,13 +115,20 @@ int	main(int argc, char **argv)
 	data = init_data();
 	if (!data)
 		return (1);
+	//ft_memset(&data, 0, sizeof(t_data));
+    data->map = NULL;
+    data->map_size.column = 0;
+    data->map_size.row = 0;
+    data->gamer_dir = -1;
+    data->gamer_pos.row = -1;
+    data->gamer_pos.column = -1;
 	status = parsing(argc, argv, data);
 	if (status != SUCCESS)
 		return (clean_up(data), ft_error(status), 1);
 	else
 		ft_putstr_fd("Succesful Parcing\n", 1);
 	print_data(data);
-	//cub3d(data);
+	cub_3d(data);
 	clean_up(data);
 	return (0);
 }

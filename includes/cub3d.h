@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:03:16 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 20:07:06 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 13:46:59 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,5 +59,7 @@ int		on_keypress(int keysymm, t_data *data);
 void	cub3d(t_data *data);
 void	end_game(t_data *data);
 void 	clean_up(t_data *data);
+
+void	print_data(t_data *data);
 
 #endif
