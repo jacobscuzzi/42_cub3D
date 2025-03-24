@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 15:43:27 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 17:43:05 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,32 @@ t_error	check_map(int fd, char *line)
 }
 */
 
+void	update_scene_check(t_data *data, char *line, t_line line_type)
+{
+	t_scene_check	*check;
+	t_identifier	identifier;
+
+	check = &data->scene_check;
+	if (line_type == L_MAP)
+		check->map = true;
+	if (line_type == L_IDENTIFIER)
+	{
+		identifier = is_identifier(line);
+		if (identifier == NORTH)
+			check->north++;
+		else if (identifier == SOUTH)
+			check->south++;
+		else if (identifier == WEST)
+			check->west++;
+		else if (identifier == EAST)
+			check->east++;
+		else if (identifier == FLOOR)
+			check->floor = true;
+		else if (identifier == CEILING)
+			check->ceiling = true;
+	}
+}
+
 t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started, char *line)
 {
 	if (line_type == L_EMPTY)
@@ -103,6 +129,7 @@ t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started
 		if (data->map_size.column < ft_strlen(line))
 			data->map_size.column = ft_strlen(line);
 		*map_started = true;
+		data->scene_check.map = true;
 		return (SUCCESS);
 	}
 	if (line_type == L_INVALID)
@@ -131,6 +158,7 @@ t_error	check_scene_file(t_data *data, char *path)
 	while (line)
 	{
 		line_type = check_scenefile_line(line);
+		update_scene_check(data, line, line_type);
 		status = check_line_type_status(data, line_type, &map_started, line);
 		free(line);
 		if (status != SUCCESS)
@@ -140,5 +168,4 @@ t_error	check_scene_file(t_data *data, char *path)
 	close(fd);
 	return (check_elements(data));
 }
-
 

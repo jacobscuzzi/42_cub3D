@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:25:38 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:29:01 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,8 @@ t_error path_error(char *line, t_error error)
 t_error check_path(char *line)
 {
 	int	fd;
-	int i;
-
-	i = 0;
-	while (line[i] && line[i] != '\n' && line[i] != '\0')
-		i++;
-	line[i] = '\0';
+	
+	remove_new_line(line);
 	// if (ft_count_words(line) != 1)
 	// 	return (PATH_MULTIPLE_ERR);
 	//ft_printf("line before open: %s\n", line);

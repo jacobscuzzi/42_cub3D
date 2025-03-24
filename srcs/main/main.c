@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 15:35:42 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:21:58 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void	print_data(t_data *data)
 	printf("Map:\n");
 	while (i < data->map_size.row)
 	{
-		printf("%s", data->map[i]);
+		printf("%s\n", data->map[i]);
 		i++;
 	}
 	printf("\n");
