@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 14:46:21 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:41:59 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,11 @@ typedef enum e_error
 	RGB_NUM_ERR,
 	MAP_ERR,
 	NO_GAMER_ERR,
+	MISS_MAP_ERR,
+	MISS_TEXTURE_ERR,
+	MISS_COLOR_ERR,
+	MULTIPLE_TEXTURE_ERR,
+	MULTIPLE_COLOR_ERR,
 	MULTIPLE_GAMER_ERR,
 	FATAL_MALOC_ERR
 }	t_error;
@@ -85,6 +90,7 @@ typedef struct s_graphics
 	t_rgb	ceiling;
 }	t_graphics;
 
+
 typedef struct s_img
 {
     void	*img_ptr; //init_mlx
@@ -112,6 +118,17 @@ typedef enum e_direction
     D_WEST
 }   t_direction;
 
+typedef struct s_scene_check
+{
+	int			north;
+	int			south;
+	int			west;
+	int			east;
+	int			floor;
+	int			ceiling;
+	bool			map;
+}	t_scene_check;
+
 typedef struct s_data
 {
 	char		**map; //parsing
@@ -131,6 +148,7 @@ typedef struct s_data
 	double  pdx; //init_mlx // player's position after the next move
     double  pdy; //init_mlx
 	t_direction direction; //raycasting
+  t_scene_check	scene_check;
 }	t_data;
 
 

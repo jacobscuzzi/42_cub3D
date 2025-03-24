@@ -1,0 +1,6 @@
+NO img/wall_north.xpm
+SO img/wall_east.xpm
+WE img/wall_west.xpm
+EA img/wall_east.xpm
+F 220,100,0
+C 240,30,0

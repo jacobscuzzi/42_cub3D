@@ -58,6 +58,7 @@ int		on_keypress(int keysymm, t_data *data);
 
 void	cub3d(t_data *data);
 void	end_game(t_data *data);
+void 	clean_up(t_data *data);
 
 void	print_data(t_data *data);
 

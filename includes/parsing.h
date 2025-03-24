@@ -33,6 +33,8 @@ t_error			read_color(char *line, t_identifier identifier, t_data *data);
 
 int				ft_count_words(char *line);
 char 			*set_image_pointer(t_data *data, t_identifier type, char *line);
+void			free_gnl(int fd);
+void 			remove_new_line(char *line);
 
 t_error			map_check(t_data *data);
 #endif

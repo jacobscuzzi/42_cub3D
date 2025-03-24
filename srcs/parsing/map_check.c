@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map_check.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 15:50:09 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/22 20:10:55 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ t_error map_check(t_data *data)
 	while (row < data->map_size.row)
 	{
 		column = 0;
-		while (column < data->map_size.column)
+		while (data->map[row][column])
 		{
 			if (is_player(data->map[row][column]))
 			{

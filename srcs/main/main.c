@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 15:39:10 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:21:58 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 	*/
 void	ft_error(t_error error_type)
 {
+	ft_printf("Error Type: %d\n", error_type);
 	if (error_type == INPUT_ERR)
 		ft_putstr_fd("Error\nInvalid Input\nNeeds 1 (*.cub) file as input\n", 2);
 	if (error_type == OPEN_ERR)
@@ -36,29 +37,24 @@ void	ft_error(t_error error_type)
 		ft_putstr_fd("Error\nNo player found in map\n", 2);
 	if (error_type == MULTIPLE_GAMER_ERR)
 		ft_putstr_fd("Error\nMultiple players found in map\n", 2);
+	if (error_type == MISS_MAP_ERR)
+		ft_putstr_fd("Error\nNo map found in scene file\n", 2);
 }
-/*
-void	end_game(t_data *data)
+
+void	init_scene_check(t_data *data)
 {
-	mlx_destroy_window(data->mlx, data->mlx_win);
-	mlx_destroy_display(data->mlx);
-	exit(1);
+	t_scene_check	*scene_check;
+
+	scene_check = &data->scene_check;
+	scene_check->north = 0;
+	scene_check->south = 0;
+	scene_check->west = 0;
+	scene_check->east = 0;
+	scene_check->floor = 0;
+	scene_check->ceiling = 0;
+	scene_check->map = false;
 }
-*/
 
-
-/*
-	DATA TYPE:
-
-	typedef struct s_data
-	{
-		char		**map;
-		t_coord		map_size;
-		void		*mlx;
-		void		*mlx_win;
-		t_graphics	graphics;
-	}	t_data;
-*/
 
 t_data	*init_data(void)
 {
@@ -73,12 +69,11 @@ t_data	*init_data(void)
 	data->gamer_dir = -1;
 	data->gamer_pos.row = -1;
 	data->gamer_pos.column = -1;
-	//data->mlx = mlx_init();
-	//if (!data->mlx)
-	//	return (ft_printf("Error\n mlx_init failed\n"), NULL);
-	// data->mlx_win = mlx_new_window(data->mlx, 640, 480, "Hello world!");
-	// if (!data->mlx_win)
-	// 	return (ft_printf("Error\nmlx_new_window failed\n"), NULL);
+	data->graphics.north = NULL;
+	data->graphics.south = NULL;
+	data->graphics.west = NULL;
+	data->graphics.east = NULL;
+	init_scene_check(data);
 	return (data);
 }
 
@@ -91,7 +86,7 @@ void	print_data(t_data *data)
 	printf("Map:\n");
 	while (i < data->map_size.row)
 	{
-		printf("%s", data->map[i]);
+		printf("%s\n", data->map[i]);
 		i++;
 	}
 	printf("\n");
@@ -129,10 +124,11 @@ int	main(int argc, char **argv)
     data->gamer_pos.column = -1;
 	status = parsing(argc, argv, data);
 	if (status != SUCCESS)
-		return (ft_error(status), 1);
+		return (clean_up(data), ft_error(status), 1);
 	else
 		ft_putstr_fd("Succesful Parcing\n", 1);
 	print_data(data);
 	cub_3d(data);
+	clean_up(data);
 	return (0);
 }
