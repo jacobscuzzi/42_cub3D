@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_input.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 17:43:05 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 20:27:41 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,31 +104,33 @@ void	update_scene_check(t_data *data, char *line, t_line line_type)
 		else if (identifier == EAST)
 			check->east++;
 		else if (identifier == FLOOR)
-			check->floor = true;
+			check->floor++;
 		else if (identifier == CEILING)
-			check->ceiling = true;
+			check->ceiling++;
 	}
 }
 
-t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started, char *line)
+t_error	check_line_type_status(t_data *data, t_line line_type, char *line)
 {
 	if (line_type == L_EMPTY)
+	{
+		if (data->scene_check.map == true)
+			data->scene_check.map_ended = true;
 		return (SUCCESS);
+	}
 	if (line_type == L_IDENTIFIER)
 	{
-		if (*map_started == true)
-		{
-			ft_putstr_fd("Error\n Map has to be last element in scenefile\n", 2);
-			return (SCENE_LINE_ERR);
-		}
+		if (data->scene_check.map == true)
+			return (MAP_LINE_ERR);
 		return (SUCCESS);
 	}
 	if (line_type == L_MAP)
 	{
+		if (data->scene_check.map_ended == true)
+			return (MAP_EMPTY_LINE_ERR);
 		data->map_size.row++;
 		if (data->map_size.column < (int)ft_strlen(line))
 			data->map_size.column = (int)ft_strlen(line);
-		*map_started = true;
 		data->scene_check.map = true;
 		return (SUCCESS);
 	}
@@ -145,26 +147,25 @@ t_error	check_scene_file(t_data *data, char *path)
 	char			*line;
 	t_error			status;
 	t_line	line_type;
-	bool			map_started;
 
-	map_started = false;
 	fd = open(path, O_RDONLY);
 	if (fd == -1)
 		return (OPEN_ERR);
 	line = NULL;
 	line = get_next_line(fd);
 	if (!line)
-		return (FATAL_MALOC_ERR);
+		return (close(fd), FATAL_MALOC_ERR);
 	while (line)
 	{
 		line_type = check_scenefile_line(line);
 		update_scene_check(data, line, line_type);
-		status = check_line_type_status(data, line_type, &map_started, line);
+		status = check_line_type_status(data, line_type, line);
 		free(line);
 		if (status != SUCCESS)
-			return (status);
+			return (free_gnl(fd), close(fd), status);
 		line = get_next_line(fd);
 	}
+	free_gnl(fd);
 	close(fd);
 	return (check_elements(data));
 }

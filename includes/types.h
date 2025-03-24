@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 15:41:59 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 20:15:41 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,12 @@ typedef enum e_error
 	SCENE_LINE_ERR,
 	PATH_ERR,
 	PATH_MULTIPLE_ERR,
+	PATH_XPM_ERR,
 	RGB_ERR,
 	RGB_NUM_ERR,
 	MAP_ERR,
+	MAP_LINE_ERR,
+	MAP_EMPTY_LINE_ERR,
 	NO_GAMER_ERR,
 	MISS_MAP_ERR,
 	MISS_TEXTURE_ERR,
@@ -127,6 +130,7 @@ typedef struct s_scene_check
 	int			floor;
 	int			ceiling;
 	bool			map;
+	bool			map_ended;
 }	t_scene_check;
 
 typedef struct s_data

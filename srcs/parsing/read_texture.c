@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 18:29:01 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 19:53:43 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,18 @@ t_error path_error(char *line, t_error error)
 	ft_printf("Error\n");
 	if (error == PATH_ERR)
 	{
-		perror("Invalid path");
-		ft_printf("%s", line);
+		perror("When trying to open path");
+		ft_printf("Invalid path: %s\n", line);
 	}
 	if (error == PATH_MULTIPLE_ERR)
 	{
 		ft_printf("Multiple strings when expected one path:\n");
 		ft_printf("%s\n", line);
+	}
+	if (error == PATH_XPM_ERR)
+	{
+		ft_printf("Invalid path: %s\n", line);
+		ft_printf("Path should end with .xpm\n");
 	}
 	return (error);
 }
@@ -33,11 +38,16 @@ t_error path_error(char *line, t_error error)
 t_error check_path(char *line)
 {
 	int	fd;
-	
+	int	i;
+
+	i = 0;
 	remove_new_line(line);
-	// if (ft_count_words(line) != 1)
-	// 	return (PATH_MULTIPLE_ERR);
-	//ft_printf("line before open: %s\n", line);
+	if (ft_count_words(line) != 1)
+		return (PATH_MULTIPLE_ERR);
+	while (line[i] && line[i] != ' ')
+		i++;
+	if (!(line[i - 4] == '.' && line[i - 3] == 'x' && line[i - 2] == 'p' && line[i - 1] == 'm'))
+		return (PATH_XPM_ERR);
 	fd = open(line, O_RDONLY);
 	if (fd == -1)
 		return (PATH_ERR);
