@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 18:31:14 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:57:37 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	*fill_map_line(char *line, t_data *data)
 {
-	size_t	j;
+	int		j;
 	char	*row;
 
 	remove_new_line(line);
@@ -24,7 +24,7 @@ char	*fill_map_line(char *line, t_data *data)
 	j = 0;
 	while (j < data->map_size.column)
 	{
-		if (j < ft_strlen(line))
+		if (j < (int)ft_strlen(line))
 		{
 			if (line[j] == ' ' || line[j] == '\0')
 				row[j] = '1';

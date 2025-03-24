@@ -6,23 +6,23 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/24 15:47:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 15:47:45 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:55:51 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "cub3d.h"
 
 
-void	end_game(t_data *data)
-{
-	mlx_destroy_window(data->mlx, data->mlx_win);
-	mlx_destroy_display(data->mlx);
-	exit(1);
-}
+// void	end_game(t_data *data)
+// {
+// 	mlx_destroy_window(data->mlx, data->mlx_win);
+// 	mlx_destroy_display(data->mlx);
+// 	exit(1);
+// }
 
 void	clean_data(t_data *data)
 {
-	size_t	i;
+	int	i;
 
 	i = 0;
 	if (data->map)
