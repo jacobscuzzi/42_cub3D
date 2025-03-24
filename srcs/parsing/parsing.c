@@ -3,26 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 20:23:28 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:31:14 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-void	free_gnl(int fd)
+char	*fill_map_line(char *line, t_data *data)
 {
-	char	*line;
+	size_t	j;
+	char	*row;
 
-	line = get_next_line(fd);
-	while (line)
+	remove_new_line(line);
+	row = (char *)malloc(sizeof(char) * data->map_size.column + 1);
+	if (!row)
+		return (NULL);
+	j = 0;
+	while (j < data->map_size.column)
 	{
-		free(line);
-		line = get_next_line(fd);
+		if (j < ft_strlen(line))
+		{
+			if (line[j] == ' ' || line[j] == '\0')
+				row[j] = '1';
+			else
+				row[j] = line[j];
+		}
+		else
+			row[j] = '1';
+		j++;
 	}
-	free(line);
+	row[j] = '\0';
+	return (row);
 }
 
 t_error read_map(char *line, t_data *data, int fd)
@@ -30,12 +44,21 @@ t_error read_map(char *line, t_data *data, int fd)
 	size_t	i;
 
 	data->map = (char **)malloc(sizeof(char *) * data->map_size.row);
-	data->map[0] = ft_strdup(line);
+	if (!data->map)
+		return (FATAL_MALOC_ERR);
+	data->map[0] = fill_map_line(line, data);
 	free(line);
+	line = NULL;
+	if (!data->map[0])
+		return (FATAL_MALOC_ERR);
 	i = 1;
 	while (i < data->map_size.row)
 	{
-		data->map[i] = get_next_line(fd);
+		line = get_next_line(fd);
+		if (!line)
+			return (free_gnl(fd), FATAL_MALOC_ERR);
+		data->map[i] = fill_map_line(line, data);
+		free(line);
 		if (!data->map[i])
 			return (free_gnl(fd), FATAL_MALOC_ERR);
 		i++;

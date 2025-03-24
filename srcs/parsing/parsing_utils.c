@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 19:06:35 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:49:46 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:27:16 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,27 @@ char *set_image_pointer(t_data *data, t_identifier type, char *line)
 		pointer = data->graphics.east;
 	}
 	return (pointer);
+}
+
+void	free_gnl(int fd)
+{
+	char	*line;
+
+	line = get_next_line(fd);
+	while (line)
+	{
+		free(line);
+		line = get_next_line(fd);
+	}
+	free(line);
+}
+
+void remove_new_line(char *line)
+{
+	int i;
+
+	i = 0;
+	while (line[i] && line[i] != '\n' && line[i] != '\0')
+		i++;
+	line[i] = '\0';
 }
