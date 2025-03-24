@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/23 20:52:42 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:37:01 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,10 @@ void	init_mlx(t_data *data)
     load_texture(data, &data->south_texture, data->graphics.south);
     load_texture(data, &data->west_texture, data->graphics.west);
     load_texture(data, &data->east_texture, data->graphics.east);
+    // load_texture(data, &data->north_texture, "./img/wall_north.xpm");
+    // load_texture(data, &data->south_texture, "./img/wall_south.xpm");
+    // load_texture(data, &data->west_texture, "./img/wall_west.xpm");
+    // load_texture(data, &data->east_texture, "./img/wall_east.xpm");
     //data->background_color = 0xA9A9A9;
     data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel
     data->py = (data->gamer_pos.row) * PX_SIZE + (PX_SIZE / 2); 
@@ -347,7 +351,8 @@ int get_map_position(t_data *data, float rx, float ry)
     int mx = (int)(rx) / PX_SIZE;
     int my = (int)(ry) / PX_SIZE;
     
-    if (mx >= 0 && mx < 8 && my >= 0 && my < 8)
+    if (mx >= 0 && mx < data->map_size.column && 
+        my >= 0 && my < data->map_size.row)
     {
         if (data->map[my][mx] == '1')
             return (1);
@@ -359,8 +364,13 @@ float check_wall_hit(t_data *data, float rx, float ry, float px, float py)
 {
     int mx = (int)(rx) / PX_SIZE;
     int my = (int)(ry) / PX_SIZE;
-    if (mx >= 0 && mx < 8 && my >= 0 && my < 8 && data->map[my][mx] == '1')
+    
+    if (mx >= 0 && mx < data->map_size.column && 
+        my >= 0 && my < data->map_size.row && 
+        data->map[my][mx] == '1')
+    {
         return (sqrt((rx-px)*(rx-px) + (ry-py)*(ry-py)));
+    }
     return (1000000);
 }
 
@@ -386,18 +396,18 @@ float fix_fisheye(float distance, float gamer_dir, float ray_angle)
     return distance * cos(ca);
 }
 
-/*
 void load_texture(t_data *data, t_texture *texture, char *path)
 {
     texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
                                         &texture->width, &texture->height);
     if (!texture->img)
         ft_error_ray();
+    //mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, texture->img, 100, 100);
     texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
                                      &texture->line_length, &texture->endian);
 }
-*/
 
+/*
 void load_texture(t_data *data, t_texture *texture, char *path)
 {
     if (!path || !data || !texture)
@@ -441,7 +451,7 @@ void load_texture(t_data *data, t_texture *texture, char *path)
         ft_error_ray();
     }
 }
-
+*/
 void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x)
 {
     float lineH = (PX_SIZE * HEIGHT) / disT;
@@ -469,6 +479,7 @@ void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x
             int tex_y = (int)tex_current % 64;
             t_texture *current_texture = NULL;
 
+            //ft_printf("direction is: %d\n", data->direction);
             if (data->direction == D_NORTH)
                 current_texture = &data->north_texture;
             else if (data->direction == D_SOUTH)
@@ -477,10 +488,14 @@ void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x
                 current_texture = &data->west_texture;
             else if (data->direction == D_EAST)
                 current_texture = &data->east_texture;
-
+            //ft_printf("current texture: %p\n", current_texture->addr); // BUG IS HERE (NO ADRESS)
+            //ft_printf("current texture length: %d\n", current_texture->line_length);
+            //ft_printf("current texture bits per pxl: %d\n", current_texture->bits_per_pixel);
+            //printf("playerangle = %f\n", data->gamer_dir);
             int color = *(int*)(current_texture->addr + 
                 (tex_y * current_texture->line_length + 
                 tex_x * (current_texture->bits_per_pixel / 8)));
+            //ft_printf("color before pixelput: %d\n", color);
             my_pixel_put(r * slice_width + i, j + lineO, &data->img, color);
             tex_current += ratio;
             j++;
@@ -503,7 +518,8 @@ float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy
             wall_distance = check_wall_hit(data, rx, ry, data->px, data->py);
             if (wall_distance < 1000000)
             {
-                *hx = rx;
+                //printf("rx is %f\n", rx);
+                *hx = rx; // BUG (rx is negative)
                 *hy = ry;
                 return (wall_distance);
             }
@@ -558,8 +574,9 @@ void raycasting(t_data *data)
     while (r < NUM_RAYS)
     {
         wall_distance = check_horizontal_lines(data, first_ray, &hx, &hy);
+        //ft_printf("hx:%d\n", hx);
         disV = check_vertical_lines(data, first_ray, &vx, &vy);
-
+        
         if (disV < wall_distance)
         {
             // vertical walls
@@ -585,9 +602,10 @@ void raycasting(t_data *data)
             }
             else
             {
-                tex_x = (int)hx % 64;  // D_SOUTH
+                tex_x = (int)hx % 64;  // D_SOUTH // BUG (tex_x is negative)
                 data->direction = D_SOUTH;
             }
+            //printf("direction = %d\n", data->direction);
         }
         wall_distance = fix_fisheye(wall_distance, data->gamer_dir, first_ray);
         draw_wall_slice(data, r, wall_distance, slice_width, tex_x);
@@ -698,7 +716,7 @@ void	init_events(t_data *data)
     mlx_hook(data->win_ptr, DestroyNotify, 0, end_data, data);
 }
 
-int cub_3d(t_data *data)
+int  cub_3d(t_data *data)
 {
     init_mlx(data);
     cub3d_draw(data);
