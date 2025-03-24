@@ -6,11 +6,39 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:00:23 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:43:27 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+t_error	check_elements(t_data *data)
+{
+	t_scene_check check;
+
+	check = data->scene_check;
+	if (check.map == false)
+		return (MISS_MAP_ERR);
+	if (check.north == 0 || check.south == 0 || check.west == 0 || check.east == 0)	
+		return (ft_putstr_fd("Error\nMissing texture in scene file\n", 2), MISS_TEXTURE_ERR);
+	if (check.floor == false || check.ceiling == false)
+	{
+		ft_putstr_fd("Error\nMissing color in scene file\n", 2);
+		return (MISS_COLOR_ERR);
+	}
+	if (check.north > 1 || check.south > 1 || check.west > 1 || check.east > 1)
+	{
+		ft_putstr_fd("Error\nMultiple textures of the same type in scene file\n", 2);
+		return (PATH_MULTIPLE_ERR);
+	}
+	if (check.floor > 1 || check.ceiling > 1)
+	{
+		ft_putstr_fd("Error\nMultiple colors of the same type in scene file\n", 2);
+		return (MULTIPLE_COLOR_ERR);
+	}
+	return (SUCCESS);
+}
+
 
 t_error	check_format(int argc, char **argv)
 {
@@ -83,6 +111,7 @@ t_error	check_line_type_status(t_data *data, t_line line_type, bool *map_started
 }
 
 
+
 t_error	check_scene_file(t_data *data, char *path)
 {
 	int				fd;
@@ -109,5 +138,7 @@ t_error	check_scene_file(t_data *data, char *path)
 		line = get_next_line(fd);
 	}
 	close(fd);
-	return (status);
+	return (check_elements(data));
 }
+
+

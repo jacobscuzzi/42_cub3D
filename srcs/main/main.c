@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 20:28:35 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:35:42 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ void	ft_error(t_error error_type)
 		ft_putstr_fd("Error\nNo player found in map\n", 2);
 	if (error_type == MULTIPLE_GAMER_ERR)
 		ft_putstr_fd("Error\nMultiple players found in map\n", 2);
+	if (error_type == MISS_MAP_ERR)
+		ft_putstr_fd("Error\nNo map found in scene file\n", 2);
 }
 /*
 	DATA TYPE:
@@ -50,6 +52,21 @@ void	ft_error(t_error error_type)
 		t_graphics	graphics;
 	}	t_data;
 */
+
+void	init_scene_check(t_data *data)
+{
+	t_scene_check	*scene_check;
+
+	scene_check = &data->scene_check;
+	scene_check->north = 0;
+	scene_check->south = 0;
+	scene_check->west = 0;
+	scene_check->east = 0;
+	scene_check->floor = 0;
+	scene_check->ceiling = 0;
+	scene_check->map = false;
+}
+
 
 t_data	*init_data(void)
 {
@@ -68,7 +85,8 @@ t_data	*init_data(void)
 	data->graphics.south = NULL;
 	data->graphics.west = NULL;
 	data->graphics.east = NULL;
-	data->mlx = mlx_init();
+	init_scene_check(data);
+	//data->mlx = mlx_init();
 	//if (!data->mlx)
 	//	return (ft_printf("Error\n mlx_init failed\n"), NULL);}
 	// data->mlx_win = mlx_new_window(data->mlx, 640, 480, "Hello world!");
