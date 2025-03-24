@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 17:37:52 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/24 18:32:03 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,18 @@ void	ft_error_ray(void)
     exit(1);
 }
 
+void init_parameters(t_data *data)
+{
+    load_texture(data, &data->north_texture, data->graphics.north);
+    load_texture(data, &data->south_texture, data->graphics.south);
+    load_texture(data, &data->west_texture, data->graphics.west);
+    load_texture(data, &data->east_texture, data->graphics.east);
+    data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel
+    data->py = (data->gamer_pos.row) * PX_SIZE + (PX_SIZE / 2); 
+    data->pdx = cos(data->gamer_dir) * 5; //cos(0)=1
+    data->pdy = sin(data->gamer_dir) * 5; //sin(0)=0
+}
+
 void	init_mlx(t_data *data)
 {
     data->mlx_ptr = mlx_init();
@@ -115,19 +127,7 @@ void	init_mlx(t_data *data)
     }
     data->img.pix_ptr = mlx_get_data_addr(data->img.img_ptr,
             &data->img.bpp, &data->img.line_len, &data->img.endian);
-    load_texture(data, &data->north_texture, data->graphics.north);
-    load_texture(data, &data->south_texture, data->graphics.south);
-    load_texture(data, &data->west_texture, data->graphics.west);
-    load_texture(data, &data->east_texture, data->graphics.east);
-    // load_texture(data, &data->north_texture, "./img/wall_north.xpm");
-    // load_texture(data, &data->south_texture, "./img/wall_south.xpm");
-    // load_texture(data, &data->west_texture, "./img/wall_west.xpm");
-    // load_texture(data, &data->east_texture, "./img/wall_east.xpm");
-    //data->background_color = 0xA9A9A9;
-    data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel
-    data->py = (data->gamer_pos.row) * PX_SIZE + (PX_SIZE / 2); 
-    data->pdx = cos(data->gamer_dir) * 5; //cos(0)=1
-    data->pdy = sin(data->gamer_dir) * 5; //sin(0)=0
+    init_parameters(data);
 }
 
 int end_data(t_data *data)
@@ -149,7 +149,6 @@ int end_data(t_data *data)
         mlx_destroy_display(data->mlx_ptr);
         free(data->mlx_ptr);
     }
-    
     exit(0);
 }
 
@@ -195,39 +194,47 @@ void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
 }
 */
 
-void draw_minimap(t_data *data)
+static void	draw_square(t_data *data, int x, int y, int color)
 {
-    int x = 0;
-    int y = 0;
-    int xo, yo;
-    int color;
-    // Calculer la taille d'une case en fonction de MINIMAP_WIDTH
-    int square_size = MINIMAP_WIDTH / data->map_size.column;  // Divise la largeur par le nombre de colonnes
- 
+    int	i;
+    int	j;
+    int	square_size;
+    int	xo;
+    int	yo;
+
+    square_size = MINIMAP_WIDTH / data->map_size.column;
+    xo = x * square_size;
+    yo = y * square_size;
+    i = xo;
+    while (i < xo + square_size)
+    {
+        j = yo;
+        while (j < yo + square_size)
+        {
+            my_pixel_put(i, j, &data->img, color);
+            j++;
+        }
+        i++;
+    }
+}
+
+void	draw_minimap(t_data *data)
+{
+    int	x;
+    int	y;
+    int	color;
+
+    y = 0;
     while (y < data->map_size.row)
     {
         x = 0;
         while (x < data->map_size.column)
         {
-            if(data->map[y][x] == '1')
+            if (data->map[y][x] == '1')
                 color = 0xFFFFFF;
             else
                 color = 0x000000;
-            
-            xo = x * square_size;
-            yo = y * square_size;
-
-            int i = xo;
-            while (i < xo + square_size)
-            {
-                int j = yo;
-                while (j < yo + square_size)
-                {
-                    my_pixel_put(i, j, &data->img, color);
-                    j++;
-                }
-                i++;
-            }
+            draw_square(data, x, y, color);
             x++;
         }
         y++;
@@ -236,11 +243,15 @@ void draw_minimap(t_data *data)
 
 void draw_player(t_data *data, int size)
 {
-    int square_size = MINIMAP_WIDTH / data->map_size.column;
+    int square_size;
+    int center_x;
+    int center_y;
+    int red;
     // Convertir la position du joueur à l'échelle de la minimap
-    int center_x = (data->px / PX_SIZE) * square_size;
-    int center_y = (data->py / PX_SIZE) * square_size;
-    int red = 0xFF0000;
+    square_size = MINIMAP_WIDTH / data->map_size.column;
+    center_x = (data->px / PX_SIZE) * square_size;
+    center_y = (data->py / PX_SIZE) * square_size;
+    red = 0xFF0000;
     // Taille du joueur proportionnelle aux cases de la minimap
     int scaled_size = size * (square_size / PX_SIZE);
     int x = -scaled_size/2;
