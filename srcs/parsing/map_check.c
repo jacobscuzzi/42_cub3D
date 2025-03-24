@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-bool	is_surrounded(t_data *data, size_t row, size_t column)
+bool	is_surrounded(t_data *data, int row, int column)
 {
 	if (row == 0 || row == data->map_size.row)
 		return (false);
@@ -32,7 +32,7 @@ bool	is_player(char c)
 	return (false);
 }
 
-void	read_player(t_data *data, size_t row, size_t column)
+void	read_player(t_data *data, int row, int column)
 {
 	data->gamer_pos.row = row;
 	data->gamer_pos.column = column;
@@ -57,8 +57,8 @@ t_error player_check(int player_count)
 
 t_error map_check(t_data *data)
 {
-	size_t	row;
-	size_t	column;
+	int	row;
+	int	column;
 	int		player_count;
 	
 	player_count = 0;

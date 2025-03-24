@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
 /*   Updated: 2025/03/24 18:31:14 by jbaumfal         ###   ########.fr       */
@@ -41,7 +41,7 @@ char	*fill_map_line(char *line, t_data *data)
 
 t_error read_map(char *line, t_data *data, int fd)
 {
-	size_t	i;
+	int	i;
 
 	data->map = (char **)malloc(sizeof(char *) * data->map_size.row);
 	if (!data->map)
