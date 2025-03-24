@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 15:37:01 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/24 17:37:52 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -583,12 +583,12 @@ void raycasting(t_data *data)
             if (first_ray > PI/2 && first_ray < 3*PI/2)
             {
                 data->direction = D_WEST;  // West
-                tex_x = (int)vy % 64;  // Position x dans la texture
+                tex_x = ((int)fabs(vy)) % 64;  // Position x dans la texture
             }
             else
             {
                 data->direction = D_EAST;  // D_EAST
-                tex_x = (int)vy % 64;
+                tex_x = ((int)fabs(vy)) % 64;
             }
             wall_distance = disV;
         }
@@ -597,12 +597,12 @@ void raycasting(t_data *data)
             // horizontal walls
             if (first_ray > PI)
             {
-                tex_x = (int)hx % 64;  // Position x dans la texture pour mur nord
+                tex_x = ((int)fabs(hx)) % 64;  // Position x dans la texture pour mur nord
                 data->direction = D_NORTH;   // Flag pour indiquer un mur nord
             }
             else
             {
-                tex_x = (int)hx % 64;  // D_SOUTH // BUG (tex_x is negative)
+                tex_x = ((int)fabs(hx)) % 64;  // D_SOUTH // BUG (tex_x is negative)
                 data->direction = D_SOUTH;
             }
             //printf("direction = %d\n", data->direction);
