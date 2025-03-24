@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 19:53:43 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 23:20:08 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,11 @@ t_error check_path(char *line)
 	remove_new_line(line);
 	if (ft_count_words(line) != 1)
 		return (PATH_MULTIPLE_ERR);
-	while (line[i] && line[i] != ' ')
+	while (!ft_is_space(line[i]) && line[i] != '\n' && line[i] != '\0')
 		i++;
 	if (!(line[i - 4] == '.' && line[i - 3] == 'x' && line[i - 2] == 'p' && line[i - 1] == 'm'))
 		return (PATH_XPM_ERR);
+	remove_new_line(line);
 	fd = open(line, O_RDONLY);
 	if (fd == -1)
 		return (PATH_ERR);
@@ -69,7 +70,7 @@ t_error	read_texture(char *line, t_identifier identifier, t_data *data)
 	char *pointer;
 	t_error status;
 
-	while (line[0] && line[0] == ' ')
+	while (ft_is_space(line[0]))
 		line++;
 	status = check_path(line);
 	if (status != SUCCESS)

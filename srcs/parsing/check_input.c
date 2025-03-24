@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 20:27:41 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 23:05:40 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ t_error	check_elements(t_data *data)
 	return (SUCCESS);
 }
 
-
 t_error	check_format(int argc, char **argv)
 {
 	int	i;
@@ -56,33 +55,6 @@ t_error	check_format(int argc, char **argv)
 		return (INPUT_ERR);
 	return (SUCCESS);
 }
-
-/*
-t_error	check_map(int fd, char *line)
-{
-	int		i;
-
-	i = 0;
-	while (line)
-	{
-		while (line[i])
-		{
-			if (line[i] == ' ')
-				i++;
-			else
-			{
-				if (is_map_char(line[i]) == false)
-					return (MAP_ERROR);
-				i++;
-			}
-		}
-		free(line);
-		line = NULL;
-		line = get_next_line(fd);
-	}
-	return (SUCCESS);
-}
-*/
 
 void	update_scene_check(t_data *data, char *line, t_line line_type)
 {

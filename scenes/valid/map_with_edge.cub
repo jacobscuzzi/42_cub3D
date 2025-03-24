@@ -1,0 +1,15 @@
+NO img/wall_north.xpm
+SO img/wall_south.xpm
+WE img/wall_west.xpm
+EA img/wall_east.xpm
+F 220,100,0
+C 240,30,0
+
+
+
+
+
+
+     111111
+    1000W001
+     111111

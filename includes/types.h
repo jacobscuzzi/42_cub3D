@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 20:15:41 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 23:34:50 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ typedef enum e_error
 	PATH_XPM_ERR,
 	RGB_ERR,
 	RGB_NUM_ERR,
-	MAP_ERR,
+	MAP_OPEN_ERR,
 	MAP_LINE_ERR,
 	MAP_EMPTY_LINE_ERR,
 	NO_GAMER_ERR,

@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 20:18:08 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 23:36:04 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ void	ft_error(t_error error_type)
 		ft_putstr_fd("Error\n Map has to be last element in scenefile\n", 2);
 	if (error_type == MAP_EMPTY_LINE_ERR)
 		ft_putstr_fd("Error\nEmpty line in map\n", 2);
+	if (error_type == MAP_OPEN_ERR)
+		ft_putstr_fd("Error\nWatch out! The map has a leak\n", 2);
 }
 
 void	init_scene_check(t_data *data)

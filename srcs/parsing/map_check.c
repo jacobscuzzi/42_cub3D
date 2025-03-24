@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map_check.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@42.com>                 +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/22 20:10:55 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 00:19:51 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ bool	is_surrounded(t_data *data, int row, int column)
 		return (false);
 	if (column == 0 || column == data->map_size.column)
 		return (false);
-	if (data->map[row - 1][column] == ' ' || data->map[row + 1][column] == ' ')
+	if (ft_is_space(data->map[row - 1][column]) || ft_is_space(data->map[row + 1][column]))
 		return (false);
-	if (data->map[row][column - 1] == ' ' || data->map[row][column + 1] == ' ')
+	if (ft_is_space(data->map[row][column - 1]) || ft_is_space(data->map[row][column + 1]))
 		return (false);
 	return (true);
 }
@@ -76,7 +76,7 @@ t_error map_check(t_data *data)
 				data->map[row][column] = '0';
 			}
 			if (data->map[row][column] == '0' && !is_surrounded(data, row, column))
-				return (MAP_ERR);
+				return (MAP_OPEN_ERR);
 			column++;
 		}
 		row++;

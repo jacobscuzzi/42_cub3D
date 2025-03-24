@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:26:12 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 19:41:57 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/24 23:38:17 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ char	*fill_map_line(char *line, t_data *data)
 		if (j < (int)ft_strlen(line))
 		{
 			if (line[j] == ' ' || line[j] == '\0')
-				row[j] = '1';
+				row[j] = ' ';
 			else
 				row[j] = line[j];
 		}
 		else
-			row[j] = '1';
+			row[j] = ' ';
 		j++;
 	}
 	row[j] = '\0';
@@ -80,7 +80,7 @@ t_error read_identifier(char *line, t_data *data)
     t_identifier    identifier;
 	t_error			status;
 
-	while (line[0] && line[0] == ' ')
+	while (ft_is_space(line[0]))
 		line++;
     identifier = is_identifier(line);
 	if (identifier == NORTH || identifier == SOUTH || identifier == WEST || identifier == EAST)
@@ -132,7 +132,7 @@ t_error read_scenefile(int fd, t_data *data)
 t_error parsing(int argc, char **argv, t_data *data)
 {
 	t_error status;
-	int     fd;
+	int		fd;
 
 	status = check_format(argc, argv);
 	if (status != SUCCESS)
