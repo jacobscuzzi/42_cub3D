@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:51:00 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 21:58:06 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:05:58 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,23 +20,24 @@
 
 bool	is_map_char(char c)
 {
-	if (c == '1' || c == '0' || c == 'N' || c == 'S' || c == 'W' || c == 'E' || c == ' ')
+	if (c == '1' || c == '0' || c == 'N' || c == 'S' || c == 'W'
+		|| c == 'E' || c == ' ')
 		return (true);
-	if (c == '\n' || c == '\0' || c == '\t') 
+	if (c == '\n' || c == '\0' || c == '\t')
 		return (true);
 	return (false);
 }
-
 
 /*
 	Here we check if the line is an identifier line. 
 	An identifier line is a line that starts with an identifier followed by a space.
 	This can be "NO" "SO " or "WE " or "EA " or "F " or "C "
 	
-	We check if the line is at least 3 characters long, that way we dont have to be afraid of errors when stack overflows.
+	We check if the line is at least 3 characters long, that way 
+	we dont have to be afraid of errors when stack overflows.
 */
 
-t_identifier is_identifier(char *line)
+t_identifier	is_identifier(char *line)
 {
 	if (strlen(line) < 3)
 		return (NONE);
@@ -69,11 +70,11 @@ bool	is_empty_line(char *line)
 	return (false);
 }
 
-
 /*
 	Here we check if the line is a map line. 
 	A map line is a line that contains only valid map characters.
-	This check doesnt look if the map is valid, only if the line is completely made out of valid map characters.
+	This check doesnt look if the map is valid, only if the line is 
+	completely made out of valid map characters.
 */
 
 bool	check_if_map(char *line)
@@ -95,11 +96,14 @@ bool	check_if_map(char *line)
 /*
 	In this function we check each line. 
 
-	If its neither a Empty Line, an identifier Line , or a Map Line, this means it is an invalid line.
+	If its neither a Empty Line, an identifier Line , 
+	or a Map Line, this means it is an invalid line.
 
-	We than print an error message as well as the line that caused the error so the user knows what to change.
+	We than print an error message as well as the 
+	line that caused the error so the user knows what to change.
 */
-t_line check_scenefile_line(char *line)
+
+t_line	check_scenefile_line(char *line)
 {
 	if (is_empty_line(line) == true)
 		return (L_EMPTY);

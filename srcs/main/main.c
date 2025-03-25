@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 23:36:04 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 16:50:36 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,6 @@ int	main(int argc, char **argv)
 	data = init_data();
 	if (!data)
 		return (1);
-	//ft_memset(&data, 0, sizeof(t_data));
     data->map = NULL;
     data->map_size.column = 0;
     data->map_size.row = 0;
@@ -131,8 +130,6 @@ int	main(int argc, char **argv)
 	status = parsing(argc, argv, data);
 	if (status != SUCCESS)
 		return (clean_up(data), ft_error(status), 1);
-	else
-		ft_putstr_fd("Succesful Parcing\n", 1);
 	print_data(data);
 	cub_3d(data);
 	clean_up(data);

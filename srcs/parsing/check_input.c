@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 23:05:40 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:06:08 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,14 @@
 
 t_error	check_elements(t_data *data)
 {
-	t_scene_check check;
+	t_scene_check	check;
 
 	check = data->scene_check;
 	if (check.map == false)
 		return (MISS_MAP_ERR);
-	if (check.north == 0 || check.south == 0 || check.west == 0 || check.east == 0)	
-		return (ft_putstr_fd("Error\nMissing texture in scene file\n", 2), MISS_TEXTURE_ERR);
+	if (check.north == 0 || check.south == 0
+		|| check.west == 0 || check.east == 0)
+		return (ft_putstr_fd("Error\nMissing texture\n", 2), MISS_TEXTURE_ERR);
 	if (check.floor == false || check.ceiling == false)
 	{
 		ft_putstr_fd("Error\nMissing color in scene file\n", 2);
@@ -28,12 +29,12 @@ t_error	check_elements(t_data *data)
 	}
 	if (check.north > 1 || check.south > 1 || check.west > 1 || check.east > 1)
 	{
-		ft_putstr_fd("Error\nMultiple textures of the same type in scene file\n", 2);
+		ft_putstr_fd("Error\nThe same texture indormation is given twice\n", 2);
 		return (PATH_MULTIPLE_ERR);
 	}
 	if (check.floor > 1 || check.ceiling > 1)
 	{
-		ft_putstr_fd("Error\nMultiple colors of the same type in scene file\n", 2);
+		ft_putstr_fd("Error\nThe same colour indormation is given twice\n", 2);
 		return (MULTIPLE_COLOR_ERR);
 	}
 	return (SUCCESS);
@@ -51,7 +52,7 @@ t_error	check_format(int argc, char **argv)
 	if (!(argv[1][i] == 'b' && argv[1]
 		[i - 1] == 'u' && argv[1][i - 2] == 'c' && argv[1][i - 3] == '.'))
 		return (INPUT_ERR);
-	if(argv[1][i - 4] == '/' || ft_strlen(argv[1]) < 5)
+	if (argv[1][i - 4] == '/' || ft_strlen(argv[1]) < 5)
 		return (INPUT_ERR);
 	return (SUCCESS);
 }
@@ -101,8 +102,8 @@ t_error	check_line_type_status(t_data *data, t_line line_type, char *line)
 		if (data->scene_check.map_ended == true)
 			return (MAP_EMPTY_LINE_ERR);
 		data->map_size.row++;
-		if (data->map_size.column < (int)ft_strlen(line))
-			data->map_size.column = (int)ft_strlen(line);
+		if (data->map_size.column < ft_strlen_tab(line))
+			data->map_size.column = ft_strlen_tab(line);
 		data->scene_check.map = true;
 		return (SUCCESS);
 	}
@@ -111,14 +112,12 @@ t_error	check_line_type_status(t_data *data, t_line line_type, char *line)
 	return (FATAL_MALOC_ERR);
 }
 
-
-
 t_error	check_scene_file(t_data *data, char *path)
 {
 	int				fd;
 	char			*line;
 	t_error			status;
-	t_line	line_type;
+	t_line			line_type;
 
 	fd = open(path, O_RDONLY);
 	if (fd == -1)
@@ -141,4 +140,3 @@ t_error	check_scene_file(t_data *data, char *path)
 	close(fd);
 	return (check_elements(data));
 }
-
