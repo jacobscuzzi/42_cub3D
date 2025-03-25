@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 18:15:41 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:48:51 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,6 @@ int	main(int argc, char **argv)
 	status = parsing(argc, argv, data);
 	if (status != SUCCESS)
 		return (clean_up(data), ft_error(status), 1);
-	print_data(data);
 	cub_3d(data);
 	clean_up(data);
 	return (0);
