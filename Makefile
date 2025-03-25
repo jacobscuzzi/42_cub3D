@@ -1,8 +1,26 @@
+######### COLORS ########
+
+GREEN := $(shell printf "\033[32m")
+RED := $(shell printf "\033[31m")
+BLUE := $(shell printf "\033[34m")
+YELLOW := $(shell printf "\033[33m")
+PINK := $(shell printf "\033[35m")
+RESET := $(shell printf "\033[0m")
+BOLD := $(shell printf "\033[1m")
+
+######### UNICODE CHARS ########
+
+CHECK := "✓"
+ARROW := "➜"
+
+######### VARIABLES ########
+
+
 NAME			= cub3D
 
 CC				= cc
 
-LIBFT_PATH		= libft/
+LIBFT_PATH		= libft
 
 LIBFT			= libft/libft.a
 
@@ -14,28 +32,82 @@ MLX_FLAGS	= -I$(MLX_DIR) -L$(MLX_DIR) -lmlx -L/usr/lib/X11 -lXext -lX11
 
 REMOVE = rm -f
 
+
+
+
+
+########## DIRECTORIES ##########
+
+SRCS_DIR = srcs
+
+SRCS_MAIN_DIR = $(SRCS_DIR)/main
+
+SRCS_PARS_DIR = $(SRCS_DIR)/parsing
+
+SRCS_RAY_DIR = $(SRCS_DIR)/raycasting
+
+MLX_DIR         = ./mlx
+
+OBJ_DIR = objs
+
 INCLUDE_DIR = includes
 
 INCLUDE_DIRS = -I$(INCLUDE_DIR) -I$(LIBFT_PATH)/includes
 
-SRCS_DIR = ./srcs/
+########## FILES ##########
 
-MLX_DIR         = ./mlx
 
-FILES			= $(shell find $(SRCS_DIR) -type f -name '*.c')
+SRC_FILES = $(SRCS_MAIN) $(SRCS_PARS) $(SRCS_RAY)
 
-OBJ_FILES = $(FILES:.c=.o)
+### MAIN ###
+SRCS_MAIN = $(addprefix $(SRCS_MAIN_DIR)/, \
+	main.c \
+	clean_up.c)
 
-SRCS			= $(FILES)
+### PARSING ###
+
+SRCS_PARS = $(addprefix $(SRCS_PARS_DIR)/, \
+	parsing.c\
+	parsing_utils.c\
+	check_input.c\
+	check_input_tools.c\
+	map_check.c\
+	read_map.c\
+	read_texture.c\
+	read_color.c)
+
+### RAYCASTING ###
+
+SRCS_RAY = $(addprefix $(SRCS_RAY_DIR)/, \
+	raycaster.c)
+
+### OBJECTS ###F
+
+OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC_FILES)))
+
+
+########## ANIMATION ##########
+
+define TITLE
+    @echo ""
+    @echo "$(BOLD)$(PINK)   ██████╗██╗   ██╗██████╗     ██████╗ ██████╗ $(RESET)"
+    @echo "$(BOLD)$(PINK)  ██╔════╝██║   ██║██╔══██╗    ╚════██╗██╔══██╗$(RESET)"
+    @echo "$(BOLD)$(PINK)  ██║     ██║   ██║██████╔╝     █████╔╝██║  ██║$(RESET)"
+    @echo "$(BOLD)$(PINK)  ██║     ██║   ██║██╔══██╗         ██╗██║  ██║$(RESET)"
+    @echo "$(BOLD)$(PINK)  ╚██████╗╚██████╔╝██████╔╝    ██████╔╝██████╔╝$(RESET)"
+    @echo "$(BOLD)$(PINK)   ╚═════╝ ╚═════╝ ╚═════╝     ╚══════╝╚═════╝ $(RESET)"
+    @echo "$(GREEN)           Compilation Complete!            $(RESET)"
+    @echo ""
+endef
+
+########## RULES ##########
 
 all : ${NAME}
 
-debug:
-	@echo "Source files: $(FILES)"
-	@echo "Object files that should be created: $(OBJ_FILES)"
-	@echo "Object directory: $(OBJ_DIR)"
-	@ls -la $(SRCS_DIR) || echo "Source directory issue!"
-	@mkdir -p $(OBJ_DIR) && ls -la $(OBJ_DIR) || echo "Cannot create/access object directory!"
+
+$(NAME): $(OBJ_FILES) $(LIBFT) ${MLX_DIR}/libmlx.a
+		$(CC) ${STANDARD_FLAGS} -o $@ $^ -L$(LIBFT_PATH) -lm ${MLX_FLAGS}
+		$(TITLE)
 
 
 ${LIBFT}:
@@ -44,24 +116,27 @@ ${LIBFT}:
 ${MLX_DIR}/libmlx.a:
 	make -C $(MLX_DIR)
 
-%.o: %.c
-	$(CC) $(STANDARD_FLAGS) $(INCLUDE_DIRS) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRCS_MAIN_DIR)/%.c | $(OBJ_DIR)
+	@$(CC) $(STANDARD_FLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
-$(NAME): $(OBJ_FILES) $(LIBFT) ${MLX_DIR}/libmlx.a
-		$(CC) $(OBJ_FILES) $(LIBFT) ${STANDARD_FLAGS} -lm ${MLX_FLAGS} -o ${NAME}
+$(OBJ_DIR)/%.o: $(SRCS_PARS_DIR)/%.c | $(OBJ_DIR)
+	@$(CC) $(STANDARD_FLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
+$(OBJ_DIR)/%.o: $(SRCS_RAY_DIR)/%.c | $(OBJ_DIR)
+	@$(CC) $(STANDARD_FLAGS) $(INCLUDE_DIRS) -c $< -o $@
+
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
 
 clean:
-	make clean -C libft
-	make clean -C $(LIBFT_PATH)
-	make clean -C $(MLX_DIR)
-	find $(SRCS_DIR) -name "*.o" -type f -delete
-	rm -f $(NAME)
-
-fclean: clean
-	@make clean -C libft
+	@make fclean -C libft
 	@make clean -C $(LIBFT_PATH)
 	@make clean -C $(MLX_DIR)
+	@find $(SRCS_DIR) -name "*.o" -type f -delete
+
+
+fclean: clean
+	rm -f $(NAME)
 
 
 re:			fclean all

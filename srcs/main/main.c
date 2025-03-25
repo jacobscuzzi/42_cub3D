@@ -6,18 +6,19 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 23:36:04 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:48:51 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "cub3d.h"
 
 /*
-	This function can hande the things to do when there is an error returned to the main
+	This function can hande the things to do 
+	when there is an error returned to the main
 	For now it only handles the error message
 
-	For some Error types i handle the error messages already in the parsing functions as
+	For some Error types i handle the error messages 
+	already in the parsing functions as
 	i want to specify the cause for these errors
 	
 	ERRORS that already print an error message earlier:
@@ -25,13 +26,18 @@
 		- PATH_ERR (in)
 		- RGB_ERR (in rgb_error)
 		- RGB_NUM_ERR (in rgb_error)
-	*/
+*/
 void	ft_error(t_error error_type)
 {
 	if (error_type == INPUT_ERR)
 		ft_putstr_fd("Error\nInvalid Input\nNeeds 1 (*.cub) file as input\n", 2);
 	if (error_type == OPEN_ERR)
-		ft_putstr_fd("Error\nCould not open file. Check name and permissions\n", 2);
+	{
+		ft_putstr_fd("Error\nCould not open file.\n", 2);
+		ft_putstr_fd("Check name and permissions\n", 2);
+	}
+	if (error_type == EMPTY_FILE_ERR)
+		ft_putstr_fd("Error\nEmpty file\n", 2);
 	if (error_type == NO_GAMER_ERR)
 		ft_putstr_fd("Error\nNo player found in map\n", 2);
 	if (error_type == MULTIPLE_GAMER_ERR)
@@ -44,6 +50,8 @@ void	ft_error(t_error error_type)
 		ft_putstr_fd("Error\nEmpty line in map\n", 2);
 	if (error_type == MAP_OPEN_ERR)
 		ft_putstr_fd("Error\nWatch out! The map has a leak\n", 2);
+	if (error_type == FATAL_MALOC_ERR)
+		ft_putstr_fd("Error\nMalloc failed\n", 2);
 }
 
 void	init_scene_check(t_data *data)
@@ -61,12 +69,11 @@ void	init_scene_check(t_data *data)
 	scene_check->map_ended = false;
 }
 
-
 t_data	*init_data(void)
 {
 	t_data	*data;
 
-	data = (t_data *)malloc(sizeof(t_data));  //TODO: Why malloc ?
+	data = (t_data *)malloc(sizeof(t_data));
 	if (!data)
 		return (ft_printf("Error\nMalloc failed\n"), NULL);
 	data->map = NULL;
@@ -83,7 +90,7 @@ t_data	*init_data(void)
 	return (data);
 }
 
-
+/*
 void	print_data(t_data *data)
 {
 	int	i;
@@ -108,10 +115,14 @@ void	print_data(t_data *data)
 	printf("South: %s\n", data->graphics.south);
 	printf("West: %s\n", data->graphics.west);
 	printf("East: %s\n", data->graphics.east);
-	printf("Floor: r:%d g:%d b:%d x:%x\n", data->graphics.floor.red, data->graphics.floor.green, data->graphics.floor.blue, data->graphics.floor.hex);
-	printf("Ceiling: r:%d g:%d b:%d x:%x\n", data->graphics.ceiling.red, data->graphics.ceiling.green, data->graphics.ceiling.blue, data->graphics.ceiling.hex);
+	printf("Floor: r:%d g:%d b:%d x:%x\n",
+		data->graphics.floor.red, data->graphics.floor.green,
+			data->graphics.floor.blue, data->graphics.floor.hex);
+	printf("Ceiling: r:%d g:%d b:%d x:%x\n",
+		data->graphics.ceiling.red, data->graphics.ceiling.green,
+			data->graphics.ceiling.blue, data->graphics.ceiling.hex);
 }
-
+*/
 
 int	main(int argc, char **argv)
 {
@@ -121,19 +132,15 @@ int	main(int argc, char **argv)
 	data = init_data();
 	if (!data)
 		return (1);
-	//ft_memset(&data, 0, sizeof(t_data));
-    data->map = NULL;
-    data->map_size.column = 0;
-    data->map_size.row = 0;
-    data->gamer_dir = -1;
-    data->gamer_pos.row = -1;
-    data->gamer_pos.column = -1;
+	data->map = NULL;
+	data->map_size.column = 0;
+	data->map_size.row = 0;
+	data->gamer_dir = -1;
+	data->gamer_pos.row = -1;
+	data->gamer_pos.column = -1;
 	status = parsing(argc, argv, data);
 	if (status != SUCCESS)
 		return (clean_up(data), ft_error(status), 1);
-	else
-		ft_putstr_fd("Succesful Parcing\n", 1);
-	print_data(data);
 	cub_3d(data);
 	clean_up(data);
 	return (0);

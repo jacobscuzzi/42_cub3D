@@ -1,38 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   clean_up.c                                         :+:      :+:    :+:   */
+/*   ft_strlen_tab.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/24 15:47:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 18:15:21 by jbaumfal         ###   ########.fr       */
+/*   Created: 2025/03/25 14:37:53 by jbaumfal          #+#    #+#             */
+/*   Updated: 2025/03/25 15:11:59 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cub3d.h"
+#include "libft.h"
 
-void	clean_up(t_data *data)
+int	ft_strlen_tab(const char *str)
 {
 	int	i;
+	int	counter;
 
 	i = 0;
-	if (data->map)
+	counter = 0;
+	while (str[i] != '\0' && str[i] != '\n')
 	{
-		while (i < data->map_size.row)
-		{
-			free(data->map[i]);
-			i++;
-		}
-		free(data->map);
+		if (str[i] == '\t')
+			counter = counter + 4;
+		else
+			counter++;
+		i++;
 	}
-	if (data->graphics.north)
-		free(data->graphics.north);
-	if (data->graphics.south)
-		free(data->graphics.south);
-	if (data->graphics.west)
-		free(data->graphics.west);
-	if (data->graphics.east)
-		free(data->graphics.east);
-	free(data);
+	return (counter);
 }

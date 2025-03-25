@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 23:34:50 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:03:26 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ typedef enum e_error
 	SUCCESS,
 	INPUT_ERR,
 	OPEN_ERR,
+	EMPTY_FILE_ERR,
 	SCENE_LINE_ERR,
 	PATH_ERR,
 	PATH_MULTIPLE_ERR,

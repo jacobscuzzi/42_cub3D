@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 00:19:51 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 16:59:15 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,11 @@ bool	is_surrounded(t_data *data, int row, int column)
 		return (false);
 	if (column == 0 || column == data->map_size.column)
 		return (false);
-	if (ft_is_space(data->map[row - 1][column]) || ft_is_space(data->map[row + 1][column]))
+	if (ft_is_space(data->map[row - 1][column])
+		|| ft_is_space(data->map[row + 1][column]))
 		return (false);
-	if (ft_is_space(data->map[row][column - 1]) || ft_is_space(data->map[row][column + 1]))
+	if (ft_is_space(data->map[row][column - 1])
+		|| ft_is_space(data->map[row][column + 1]))
 		return (false);
 	return (true);
 }
@@ -46,7 +48,7 @@ void	read_player(t_data *data, int row, int column)
 		data->gamer_dir = PI / 2;
 }
 
-t_error player_check(int player_count)
+t_error	player_check(int player_count)
 {
 	if (player_count == 0)
 		return (NO_GAMER_ERR);
@@ -55,15 +57,14 @@ t_error player_check(int player_count)
 	return (SUCCESS);
 }
 
-t_error map_check(t_data *data)
+t_error	map_check(t_data *data)
 {
 	int	row;
 	int	column;
-	int		player_count;
-	
+	int	player_count;
+
 	player_count = 0;
 	row = 0;
-
 	while (row < data->map_size.row)
 	{
 		column = 0;
@@ -75,7 +76,8 @@ t_error map_check(t_data *data)
 				read_player(data, row, column);
 				data->map[row][column] = '0';
 			}
-			if (data->map[row][column] == '0' && !is_surrounded(data, row, column))
+			if (data->map[row][column] == '0'
+				&& !is_surrounded(data, row, column))
 				return (MAP_OPEN_ERR);
 			column++;
 		}

@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 14:51:31 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 21:53:41 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 14:52:02 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ char 			*set_image_pointer(t_data *data, t_identifier type, char *line);
 void			free_gnl(int fd);
 void 			remove_new_line(char *line);
 bool			ft_is_space(char c);
+
+t_error read_map(char *line, t_data *data, int fd);
 
 t_error			map_check(t_data *data);
 #endif
