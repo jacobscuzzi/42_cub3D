@@ -6,12 +6,11 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/24 15:47:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 19:28:39 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:15:21 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "cub3d.h"
-
+#include "cub3d.h"
 
 void	clean_up(t_data *data)
 {
