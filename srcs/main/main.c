@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:15:50 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 16:50:36 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:03:41 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,12 @@ void	ft_error(t_error error_type)
 	if (error_type == INPUT_ERR)
 		ft_putstr_fd("Error\nInvalid Input\nNeeds 1 (*.cub) file as input\n", 2);
 	if (error_type == OPEN_ERR)
-		ft_putstr_fd("Error\nCould not open file. Check name and permissions\n", 2);
+	{
+		ft_putstr_fd("Error\nCould not open file.\n", 2);
+		ft_putstr_fd("Check name and permissions\n", 2);
+	}
+	if (error_type == EMPTY_FILE_ERR)
+		ft_putstr_fd("Error\nEmpty file\n", 2);
 	if (error_type == NO_GAMER_ERR)
 		ft_putstr_fd("Error\nNo player found in map\n", 2);
 	if (error_type == MULTIPLE_GAMER_ERR)
@@ -44,6 +49,8 @@ void	ft_error(t_error error_type)
 		ft_putstr_fd("Error\nEmpty line in map\n", 2);
 	if (error_type == MAP_OPEN_ERR)
 		ft_putstr_fd("Error\nWatch out! The map has a leak\n", 2);
+	if (error_type == FATAL_MALOC_ERR)
+		ft_putstr_fd("Error\nMalloc failed\n", 2);
 }
 
 void	init_scene_check(t_data *data)

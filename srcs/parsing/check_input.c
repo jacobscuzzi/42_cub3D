@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:40:38 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 17:06:08 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:03:07 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ t_error	check_scene_file(t_data *data, char *path)
 	line = NULL;
 	line = get_next_line(fd);
 	if (!line)
-		return (close(fd), FATAL_MALOC_ERR);
+		return (close(fd), EMPTY_FILE_ERR);
 	while (line)
 	{
 		line_type = check_scenefile_line(line);

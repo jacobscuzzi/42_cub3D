@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 17:05:24 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:07:56 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ t_error	check_path(char *line)
 	if (!(line[i - 4] == '.' && line[i - 3] == 'x'
 			&& line[i - 2] == 'p' && line[i - 1] == 'm'))
 		return (PATH_XPM_ERR);
-	remove_new_line(line);
+	line[i] = '\0';
+		//remove_new_line(line);
 	fd = open(line, O_RDONLY);
 	if (fd == -1)
 		return (PATH_ERR);
