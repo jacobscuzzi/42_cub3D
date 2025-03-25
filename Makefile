@@ -52,16 +52,14 @@ $(NAME): $(OBJ_FILES) $(LIBFT) ${MLX_DIR}/libmlx.a
 
 
 clean:
-	make clean -C libft
-	make clean -C $(LIBFT_PATH)
-	make clean -C $(MLX_DIR)
-	find $(SRCS_DIR) -name "*.o" -type f -delete
-	rm -f $(NAME)
-
-fclean: clean
-	@make clean -C libft
+	@make fclean -C libft
 	@make clean -C $(LIBFT_PATH)
 	@make clean -C $(MLX_DIR)
+	@find $(SRCS_DIR) -name "*.o" -type f -delete
+
+
+fclean: clean
+	rm -f $(NAME)
 
 
 re:			fclean all

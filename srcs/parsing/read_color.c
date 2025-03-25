@@ -6,13 +6,13 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:33 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/20 19:58:23 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:04:12 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-t_error rgb_error(char *line, t_error error)
+t_error	rgb_error(char *line, t_error error)
 {
 	ft_printf("Error\n");
 	if (error == RGB_ERR)
@@ -43,7 +43,7 @@ int	ft_count_digits(char *line, int i)
 	return (counter);
 }
 
-t_error check_after_last_digit(char *line, int i)
+t_error	check_after_last_digit(char *line, int i)
 {
 	while (line[i] && line[i] == ' ')
 		i++;
@@ -51,7 +51,6 @@ t_error check_after_last_digit(char *line, int i)
 		return (rgb_error(line, RGB_ERR));
 	return (SUCCESS);
 }
-
 
 t_error	check_rgb(char *line)
 {
@@ -82,11 +81,6 @@ t_error	check_rgb(char *line)
 	return (rgb_error(line, RGB_ERR));
 }
 
-void	transform_rgb_to_hex(t_rgb *rgb)
-{
-	rgb->hex = (rgb->red << 16) + (rgb->green << 8) + rgb->blue;
-}
-
 t_error	read_color(char *line, t_identifier identifier, t_data *data)
 {
 	t_rgb		rgb;
@@ -106,7 +100,7 @@ t_error	read_color(char *line, t_identifier identifier, t_data *data)
 	rgb.blue = ft_atoi(line);
 	if (rgb.red > 255 || rgb.green > 255 || rgb.blue > 255)
 		return (rgb_error(line, RGB_NUM_ERR));
-	transform_rgb_to_hex(&rgb);
+	rgb.hex = (rgb.red << 16) + (rgb.green << 8) + rgb.blue;
 	if (identifier == FLOOR)
 		data->graphics.floor = rgb;
 	else

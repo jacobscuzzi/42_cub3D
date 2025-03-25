@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 19:06:35 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 00:20:22 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:06:16 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 int	ft_count_words(char *line)
 {
-	int i;
-	int words;
+	int	i;
+	int	words;
 
 	i = 0;
 	words = 0;
@@ -33,9 +33,9 @@ int	ft_count_words(char *line)
 	return (words);
 }
 
-char *set_image_pointer(t_data *data, t_identifier type, char *line)
+char	*set_image_pointer(t_data *data, t_identifier type, char *line)
 {
-	char *pointer;
+	char	*pointer;
 
 	pointer = NULL;
 	if (type == NORTH)
@@ -74,9 +74,9 @@ void	free_gnl(int fd)
 	free(line);
 }
 
-void remove_new_line(char *line)
+void	remove_new_line(char *line)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (line[i] && line[i] != '\n' && line[i] != '\0' && line[i] != '\t')
@@ -84,7 +84,7 @@ void remove_new_line(char *line)
 	line[i] = '\0';
 }
 
-bool ft_is_space(char c)
+bool	ft_is_space(char c)
 {
 	if (!c)
 		return (false);
