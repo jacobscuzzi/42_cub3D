@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:13:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 18:03:26 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/25 19:50:07 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,13 +168,13 @@ typedef struct s_data
 //tex_x
 
 //dof
-//wall_distance
+//wall_distance_h
 //ry
 //rx
 //aTan
 //yo
 //xo
-//disV
+//wall_distance_v
 //vx
 //vy
 //hx
@@ -185,7 +185,7 @@ typedef struct s_data
 
 //ca
 
-//draw_wall_slice(data, r, wall_distance, slice_width, tex_x);
+//draw_wall_slice(data, r, wall_distance_h, slice_width, tex_x);
 //lineH
 //lineO
 //ratio

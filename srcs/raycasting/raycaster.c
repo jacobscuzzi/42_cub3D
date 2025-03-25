@@ -6,71 +6,12 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/24 19:20:42 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/25 22:09:43 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-/*
-typedef struct s_ray
-{
-    float rx, ry;
-    float xo, yo;
-    float distance;
-    int wall_hit;
-} t_ray;
-
-typedef struct s_img
-{
-    void	*img_ptr;
-    char	*pix_ptr;
-    int		bpp;
-    int		line_len;
-    int		endian;
-}			t_img;
-
-typedef struct s_texture {
-    void    *img;
-    char    *addr;
-    int     bits_per_pixel;
-    int     line_length;
-    int     endian;
-    int     width;
-    int     height;
-} t_texture;
-
-typedef enum e_direction
-{
-    D_NORTH,
-    D_SOUTH,
-    D_EAST,
-    D_WEST
-}   t_direction;
-
-typedef struct s_raycaster
-{
-    void	*mlx_ptr;
-    void	*win_ptr;
-    t_img	img;
-    int     background_color;
-    int     graphics->ceiling;
-    int     graphics->floor;
-    int     wall_color;
-    double  px; // Position du joueur
-    double  py; // Position du joueur
-    double  gamer_dir; // Orientation du joueur en radians
-    double  pdx; // Projection du prochain mouvement
-    double  pdy;
-    int     col; 
-    int     lines;
-    t_texture north_texture;
-    t_texture south_texture;
-    t_texture east_texture;
-    t_texture west_texture;
-    t_direction direction;
-}   t_data;
-*/
 
 void	ft_putstr_fd(char *s, int fd)
 {
@@ -98,10 +39,10 @@ void init_parameters(t_data *data)
     load_texture(data, &data->south_texture, data->graphics.south);
     load_texture(data, &data->west_texture, data->graphics.west);
     load_texture(data, &data->east_texture, data->graphics.east);
-    data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel
+    data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel on big map
     data->py = (data->gamer_pos.row) * PX_SIZE + (PX_SIZE / 2); 
-    data->pdx = cos(data->gamer_dir) * 5; //cos(0)=1
-    data->pdy = sin(data->gamer_dir) * 5; //sin(0)=0
+    data->pdx = cos(data->gamer_dir) * 5;
+    data->pdy = sin(data->gamer_dir) * 5;
 }
 
 void	init_mlx(t_data *data)
@@ -317,8 +258,8 @@ float init_horizontal_ray(t_data *data, float first_ray, float *rx, float *ry, f
     float aTan = -1 / tan(first_ray);
     
     if (first_ray == 0 || first_ray == PI)
-        return (8);  // Skip horizontal checks
-    if (first_ray > PI)  // Looking up
+        return (8);  // Skip horizontal checks because it will never meet a horizontal line
+    if (first_ray > PI)  // Looking up so y decreasing
     {
         *ry = (floor(data->py / PX_SIZE) * PX_SIZE) - 0.0001;
         *rx = (data->py - *ry) * aTan + data->px;
@@ -343,7 +284,7 @@ float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry, flo
         return (8);  // Skip vertical checks
     if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
     {
-        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) - 0.0001;
+        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) + 0.0001; //TODO: not sure if its - or +
         *ry = (data->px - *rx) * nTan + data->py;
         *xo = -PX_SIZE;
         *yo = -(*xo) * nTan;
@@ -360,8 +301,8 @@ float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry, flo
 
 int get_map_position(t_data *data, float rx, float ry)
 {
-    int mx = (int)(rx) / PX_SIZE;
-    int my = (int)(ry) / PX_SIZE;
+    int mx = (int)(rx / PX_SIZE);
+    int my = (int)(ry / PX_SIZE);
     
     if (mx >= 0 && mx < data->map_size.column && 
         my >= 0 && my < data->map_size.row)
@@ -371,7 +312,7 @@ int get_map_position(t_data *data, float rx, float ry)
     }
     return (0);
 }
-
+/*
 float check_wall_hit(t_data *data, float rx, float ry, float px, float py)
 {
     int mx = (int)(rx) / PX_SIZE;
@@ -385,6 +326,7 @@ float check_wall_hit(t_data *data, float rx, float ry, float px, float py)
     }
     return (1000000);
 }
+*/
 
 float normalize_angle(float angle)
 {
@@ -402,10 +344,11 @@ void init_ray_casting(t_data *data, float *first_ray, float *raysfield, int *sli
     *slice_width = WIDTH / NUM_RAYS;
 }
 
+//beceause FPV = PI/3 so 0<cos(a)<1
 float fix_fisheye(float distance, float gamer_dir, float ray_angle)
 {
     float ca = normalize_angle(gamer_dir - ray_angle);
-    return distance * cos(ca);
+    return (distance * cos(ca));
 }
 
 void load_texture(t_data *data, t_texture *texture, char *path)
@@ -464,6 +407,8 @@ void load_texture(t_data *data, t_texture *texture, char *path)
     }
 }
 */
+
+//draw_wall_slice(data, r, wall_distance_h, slice_width, tex_x);
 void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x)
 {
     float lineH = (PX_SIZE * HEIGHT) / disT;
@@ -520,63 +465,60 @@ float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy
 {
     float rx, ry, xo, yo;
     int dof = 0;
-    float wall_distance = 1000000;
+    float wall_distance_h = 1000000;
 
     dof = init_horizontal_ray(data, first_ray, &rx, &ry, &xo, &yo);
     while (dof < data->map_size.row)
     {
-        if (get_map_position(data, rx, ry))
+        if (get_map_position(data, rx, ry))  //if it's a wall
         {
-            wall_distance = check_wall_hit(data, rx, ry, data->px, data->py);
-            if (wall_distance < 1000000)
-            {
-                //printf("rx is %f\n", rx);
-                *hx = rx; // BUG (rx is negative)
-                *hy = ry;
-                return (wall_distance);
-            }
-        }
+            //wall_distance_h = check_wall_hit(data, rx, ry, data->px, data->py);
+            wall_distance_h = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));
+            printf("rx is %f\n", rx);
+            //hx and hx are the definitive coordinate of wall
+            *hx = rx; // rx is never negative
+            *hy = ry;
+            return (wall_distance_h);
+        } //if its not a wall we continue
         rx += xo;
         ry += yo;
         dof++;
     }
-    return (wall_distance);
+    return (wall_distance_h);
 }
 
 float check_vertical_lines(t_data *data, float first_ray, float *vx, float *vy)
 {
     float rx, ry, xo, yo;
     int dof = 0;
-    float disV = 1000000;
+    float wall_distance_v = 1000000;
 
     dof = init_vertical_ray(data, first_ray, &rx, &ry, &xo, &yo);
     while (dof < data->map_size.column)
     {
-        if (get_map_position(data, rx, ry))
+        if (get_map_position(data, rx, ry)) //if it's a wall
         {
-            disV = check_wall_hit(data, rx, ry, data->px, data->py);
-            if (disV < 1000000)
-            {
-                *vx = rx;
-                *vy = ry;
-                return (disV);
-            }
-        }
+            //wall_distance_v = check_wall_hit(data, rx, ry, data->px, data->py);
+            wall_distance_v = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));       
+            *vx = rx;
+            *vy = ry;
+            return (wall_distance_v);
+        } //if its not a wall we continue
         rx += xo;
         ry += yo;
         dof++;
     }
-    return (disV);
+    return (wall_distance_v);
 }
 
-void raycasting(t_data *data)
+void raycasting(t_data *data) //uses BIGMAP
 {
     float raysfield, first_ray;  
     int slice_width;
     float hx, hy, vx, vy;
     // hx, hy: coordinates of the wall impact point for horizontal intersections
     // vx, vy: coordinates of the wall impact point for vertical intersections
-    float wall_distance, disV;
+    float wall_distance_h, wall_distance_v;
     int r = 0;
     int tex_x;
 
@@ -585,42 +527,31 @@ void raycasting(t_data *data)
 
     while (r < NUM_RAYS)
     {
-        wall_distance = check_horizontal_lines(data, first_ray, &hx, &hy);
+        wall_distance_h = check_horizontal_lines(data, first_ray, &hx, &hy);
         //ft_printf("hx:%d\n", hx);
-        disV = check_vertical_lines(data, first_ray, &vx, &vy);
+        wall_distance_v = check_vertical_lines(data, first_ray, &vx, &vy);
         
-        if (disV < wall_distance)
+        if (wall_distance_v < wall_distance_h) // ray looking to a vertical wall
         {
-            // vertical walls
+            tex_x = ((int)fabs(vy)) % 64;// Position x dans la texture
             if (first_ray > PI/2 && first_ray < 3*PI/2)
-            {
-                data->direction = D_WEST;  // West
-                tex_x = ((int)fabs(vy)) % 64;  // Position x dans la texture
-            }
+                data->direction = D_WEST;
             else
-            {
-                data->direction = D_EAST;  // D_EAST
-                tex_x = ((int)fabs(vy)) % 64;
-            }
-            wall_distance = disV;
+                data->direction = D_EAST;
+            wall_distance_h = wall_distance_v;
         }
-        else
-        {
-            // horizontal walls
+        else // ray looking to a horizontal wall
+        {  
+            tex_x = ((int)fabs(hx)) % 64;  // Position x dans la texture
             if (first_ray > PI)
-            {
-                tex_x = ((int)fabs(hx)) % 64;  // Position x dans la texture pour mur nord
                 data->direction = D_NORTH;   // Flag pour indiquer un mur nord
-            }
             else
-            {
-                tex_x = ((int)fabs(hx)) % 64;  // D_SOUTH // BUG (tex_x is negative)
                 data->direction = D_SOUTH;
-            }
             //printf("direction = %d\n", data->direction);
         }
-        wall_distance = fix_fisheye(wall_distance, data->gamer_dir, first_ray);
-        draw_wall_slice(data, r, wall_distance, slice_width, tex_x);
+        //plus ray s'eloigne de player_dir, plus on retrecit wall_distance (bc cos(ca) decreasing) 
+        wall_distance_h = fix_fisheye(wall_distance_h, data->gamer_dir, first_ray);
+        draw_wall_slice(data, r, wall_distance_h, slice_width, tex_x);
 
         first_ray = normalize_angle(first_ray + raysfield);
         r++;
