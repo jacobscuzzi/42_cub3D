@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:24:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 16:59:15 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:15:13 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 bool	is_surrounded(t_data *data, int row, int column)
 {
-	if (row == 0 || row == data->map_size.row)
+	if (row == 0 || row == data->map_size.row - 1)
 		return (false);
-	if (column == 0 || column == data->map_size.column)
+	if (column == 0 || column == data->map_size.column - 1)
 		return (false);
 	if (ft_is_space(data->map[row - 1][column])
 		|| ft_is_space(data->map[row + 1][column]))
