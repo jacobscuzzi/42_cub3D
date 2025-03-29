@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 22:09:43 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/03/29 19:12:55 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,7 +284,7 @@ float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry, flo
         return (8);  // Skip vertical checks
     if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
     {
-        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) + 0.0001; //TODO: not sure if its - or +
+        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) - 0.01; //TODO: not sure if its - or +
         *ry = (data->px - *rx) * nTan + data->py;
         *xo = -PX_SIZE;
         *yo = -(*xo) * nTan;
@@ -474,7 +474,7 @@ float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy
         {
             //wall_distance_h = check_wall_hit(data, rx, ry, data->px, data->py);
             wall_distance_h = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));
-            printf("rx is %f\n", rx);
+            //printf("rx is %f\n", rx);
             //hx and hx are the definitive coordinate of wall
             *hx = rx; // rx is never negative
             *hy = ry;
