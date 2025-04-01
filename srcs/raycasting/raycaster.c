@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/29 19:12:55 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/04/01 19:44:45 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,36 +106,6 @@ void	my_pixel_put(int x, int y, t_img *img, int color)
     }
 }
 
-/*
-//Bresenham algorithm (not mine) //TODO: delete or change
-void draw_line(t_img *img, int x0, int y0, int x1, int y1, int color)
-{
-    int dx = abs(x1 - x0); // Différence absolue en x
-    int dy = abs(y1 - y0); // Différence absolue en y
-    int sx = (x0 < x1) ? 1 : -1; // Direction du pas en x
-    int sy = (y0 < y1) ? 1 : -1; // Direction du pas en y
-    int err = dx - dy; // Erreur initiale
-
-    while (1)
-    {
-        my_pixel_put(x0, y0, img, color); // Dessiner le pixel à la position actuelle
-        if (x0 == x1 && y0 == y1) // Si on a atteint le point final, sortir de la boucle
-            break;
-        int e2 = err * 2; // Double de l'erreur
-        if (e2 > -dy)
-        {
-            err -= dy; // Ajuster l'erreur
-            x0 += sx; // Avancer en x
-        }
-        if (e2 < dx)
-        {
-            err += dx; // Ajuster l'erreur
-            y0 += sy; // Avancer en y
-        }
-    }
-}
-*/
-
 static void	draw_square(t_data *data, int x, int y, int color)
 {
     int	i;
@@ -211,27 +181,6 @@ void draw_player(t_data *data, int size)
     }
 }
 
-//TODO: des le debut ou juste pour minimap ?
-/*
-void    draw_background(t_data *data) 
-{
-    int	x;
-    int	y;
-
-    y = 0;
-    while (y < HEIGHT)
-    {
-        x = 0;
-        while (x < WIDTH)
-        {
-            my_pixel_put(x, y, &data->img, data->background_color);
-            x++;
-        }
-        y++;
-    }
-}
-*/
-
 void draw_ceiling_and_floor(t_data *data)
 {
     int x;
@@ -253,48 +202,84 @@ void draw_ceiling_and_floor(t_data *data)
     }
 }
 
-float init_horizontal_ray(t_data *data, float first_ray, float *rx, float *ry, float *xo, float *yo)
+float calculate_horizontal_offset(float first_ray, float *xo, float *yo)
 {
     float aTan = -1 / tan(first_ray);
     
     if (first_ray == 0 || first_ray == PI)
-        return (8);  // Skip horizontal checks because it will never meet a horizontal line
-    if (first_ray > PI)  // Looking up so y decreasing
+        return (8);  // Skip horizontal checks
+
+    if (first_ray > PI)  // Looking up
     {
-        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) - 0.0001;
-        *rx = (data->py - *ry) * aTan + data->px;
         *yo = -PX_SIZE;
         *xo = -(*yo) * aTan;
     }
     else  // Looking down
     {
-        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) + PX_SIZE;
-        *rx = (data->py - *ry) * aTan + data->px;
         *yo = PX_SIZE;
         *xo = -(*yo) * aTan;
+    }
+    return aTan;
+}
+
+float init_horizontal_ray(t_data *data, float first_ray, float *rx, float *ry)
+{
+    float xo, yo;
+    float aTan = calculate_horizontal_offset(first_ray, &xo, &yo);
+    
+    if (aTan == 8)
+        return (8);
+        
+    if (first_ray > PI)  // Looking up
+    {
+        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) - 0.0001;
+        *rx = (data->py - *ry) * aTan + data->px;
+    }
+    else  // Looking down
+    {
+        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) + PX_SIZE;
+        *rx = (data->py - *ry) * aTan + data->px;
     }
     return (0);
 }
 
-float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry, float *xo, float *yo)
+float calculate_vertical_offset(float first_ray, float *xo, float *yo)
 {
     float nTan = -tan(first_ray);
     
     if (first_ray == PI/2 || first_ray == 3*PI/2)
         return (8);  // Skip vertical checks
+        
     if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
     {
-        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) - 0.01; //TODO: not sure if its - or +
-        *ry = (data->px - *rx) * nTan + data->py;
         *xo = -PX_SIZE;
         *yo = -(*xo) * nTan;
     }
     else  // Looking right
     {
-        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) + PX_SIZE;
-        *ry = (data->px - *rx) * nTan + data->py;
         *xo = PX_SIZE;
         *yo = -(*xo) * nTan;
+    }
+    return nTan;
+}
+
+float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry)
+{
+    float xo, yo;
+    float nTan = calculate_vertical_offset(first_ray, &xo, &yo);
+    
+    if (nTan == 8)
+        return (8);
+        
+    if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
+    {
+        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) - 0.01;
+        *ry = (data->px - *rx) * nTan + data->py;
+    }
+    else  // Looking right
+    {
+        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) + PX_SIZE;
+        *ry = (data->px - *rx) * nTan + data->py;
     }
     return (0);
 }
@@ -312,21 +297,6 @@ int get_map_position(t_data *data, float rx, float ry)
     }
     return (0);
 }
-/*
-float check_wall_hit(t_data *data, float rx, float ry, float px, float py)
-{
-    int mx = (int)(rx) / PX_SIZE;
-    int my = (int)(ry) / PX_SIZE;
-    
-    if (mx >= 0 && mx < data->map_size.column && 
-        my >= 0 && my < data->map_size.row && 
-        data->map[my][mx] == '1')
-    {
-        return (sqrt((rx-px)*(rx-px) + (ry-py)*(ry-py)));
-    }
-    return (1000000);
-}
-*/
 
 float normalize_angle(float angle)
 {
@@ -361,52 +331,6 @@ void load_texture(t_data *data, t_texture *texture, char *path)
     texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
                                      &texture->line_length, &texture->endian);
 }
-
-/*
-void load_texture(t_data *data, t_texture *texture, char *path)
-{
-    if (!path || !data || !texture)
-        ft_error_ray();
-
-    // Initialize all fields to 0
-    texture->img = NULL;
-    texture->addr = NULL;
-    texture->bits_per_pixel = 0;
-    texture->line_length = 0;
-    texture->endian = 0;
-    texture->width = 0;
-    texture->height = 0;
-
-    // Load the image
-    texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
-                                        &texture->width, &texture->height);
-    if (!texture->img)
-    {
-        printf("Error loading texture: %s\n", path);
-        ft_error_ray();
-    }
-
-    // Get the image data
-    texture->addr = mlx_get_data_addr(texture->img, 
-                                     &texture->bits_per_pixel,
-                                     &texture->line_length,
-                                     &texture->endian);
-    if (!texture->addr)
-    {
-        mlx_destroy_image(data->mlx_ptr, texture->img);
-        ft_error_ray();
-    }
-
-    // Verify texture dimensions
-    if (texture->width != 64 || texture->height != 64)
-    {
-        printf("Invalid texture dimensions: %dx%d (expected 64x64)\n", 
-               texture->width, texture->height);
-        mlx_destroy_image(data->mlx_ptr, texture->img);
-        ft_error_ray();
-    }
-}
-*/
 
 //draw_wall_slice(data, r, wall_distance_h, slice_width, tex_x);
 void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x)
@@ -467,19 +391,21 @@ float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy
     int dof = 0;
     float wall_distance_h = 1000000;
 
-    dof = init_horizontal_ray(data, first_ray, &rx, &ry, &xo, &yo);
+    dof = init_horizontal_ray(data, first_ray, &rx, &ry);
+    if (dof == 8)
+        return wall_distance_h;
+        
+    calculate_horizontal_offset(first_ray, &xo, &yo);
+    
     while (dof < data->map_size.row)
     {
-        if (get_map_position(data, rx, ry))  //if it's a wall
+        if (get_map_position(data, rx, ry))
         {
-            //wall_distance_h = check_wall_hit(data, rx, ry, data->px, data->py);
             wall_distance_h = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));
-            //printf("rx is %f\n", rx);
-            //hx and hx are the definitive coordinate of wall
-            *hx = rx; // rx is never negative
+            *hx = rx;
             *hy = ry;
             return (wall_distance_h);
-        } //if its not a wall we continue
+        }
         rx += xo;
         ry += yo;
         dof++;
@@ -489,21 +415,26 @@ float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy
 
 float check_vertical_lines(t_data *data, float first_ray, float *vx, float *vy)
 {
-    float rx, ry, xo, yo;
+    float rx, ry;
+    float xo = 0, yo = 0;
     int dof = 0;
     float wall_distance_v = 1000000;
 
-    dof = init_vertical_ray(data, first_ray, &rx, &ry, &xo, &yo);
+    dof = init_vertical_ray(data, first_ray, &rx, &ry);
+    if (dof == 8)
+        return wall_distance_v;
+        
+    calculate_vertical_offset(first_ray, &xo, &yo);
+    
     while (dof < data->map_size.column)
     {
-        if (get_map_position(data, rx, ry)) //if it's a wall
+        if (get_map_position(data, rx, ry))
         {
-            //wall_distance_v = check_wall_hit(data, rx, ry, data->px, data->py);
             wall_distance_v = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));       
             *vx = rx;
             *vy = ry;
             return (wall_distance_v);
-        } //if its not a wall we continue
+        }
         rx += xo;
         ry += yo;
         dof++;

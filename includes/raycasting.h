@@ -6,7 +6,7 @@
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 20:31:23 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/29 17:48:52 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/04/01 19:43:54 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,6 @@ void				my_pixel_put(int x, int y, t_img *img, int color);
 void				draw_minimap(t_data *data);
 void				draw_player(t_data *data, int size);
 void				draw_ceiling_and_floor(t_data *data);
-float				init_horizontal_ray(t_data *data, float first_ray,
-						float *rx, float *ry, float *xo, float *yo);
-float				init_vertical_ray(t_data *data, float first_ray, float *rx,
-						float *ry, float *xo, float *yo);
 int					get_map_position(t_data *data, float rx, float ry);
 float				check_wall_hit(t_data *data, float rx, float ry, float px,
 						float py);
@@ -68,5 +64,9 @@ int					moves(int key, t_data *data);
 void				init_events(t_data *data);
 int					cub_3d(t_data *data);
 void				init_parameters(t_data *data);
+float calculate_vertical_offset(float first_ray, float *xo, float *yo);
+float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry);
+float calculate_horizontal_offset(float first_ray, float *xo, float *yo);
+float init_horizontal_ray(t_data *data, float first_ray, float *rx, float *ry);
 
 #endif
