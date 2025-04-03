@@ -79,7 +79,14 @@ SRCS_PARS = $(addprefix $(SRCS_PARS_DIR)/, \
 ### RAYCASTING ###
 
 SRCS_RAY = $(addprefix $(SRCS_RAY_DIR)/, \
-	raycaster.c)
+	cub3d.c\
+	drawing.c\
+	mlx_tools.c\
+	moves.c\
+	raycaster.c\
+	raycasting_utils.c\
+	rays.c\
+	toolbox.c)
 
 ### OBJECTS ###F
 
