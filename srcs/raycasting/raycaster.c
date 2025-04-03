@@ -5,596 +5,97 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/20 20:30:39 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/04/01 19:44:45 by varodrig         ###   ########.fr       */
+/*   Created: 2025/04/03 14:46:19 by varodrig          #+#    #+#             */
+/*   Updated: 2025/04/03 16:23:43 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cub3d.h"
+#include "raycasting.h"
 
-
-void	ft_putstr_fd(char *s, int fd)
+void	init_draw_params(t_draw *d, float disT)
 {
-    int	i;
-
-    if (NULL == s || fd < 0)
-        return ;
-    i = 0;
-    while (s[i])
-    {
-        write(fd, &s[i], 1);
-        i++;
-    }
+	d->lineh = (PX_SIZE * HEIGHT) / disT;
+	d->lineoffset = (HEIGHT - d->lineh) / 2;
+	d->ratio = 64.0 / d->lineh;
+	d->tex_pos = 0;
+	d->slice_width = WIDTH / NUM_RAYS;
+	if (d->lineh > HEIGHT)
+	{
+		d->tex_pos = (d->lineh - HEIGHT) / 2.0 * d->ratio;
+		d->lineh = HEIGHT;
+		d->lineoffset = 0;
+	}
 }
 
-void	ft_error_ray(void)
+void	draw_texture_line(t_data *data, t_draw *d, int tex_x)
 {
-    ft_putstr_fd("malloc failed\n", STDERR_FILENO);
-    exit(1);
+	int			color;
+	t_texture	*current;
+
+	current = get_wall_texture(data);
+	color = *(int *)(current->addr + (d->tex_y * current->line_length + tex_x
+				* (current->bits_per_pixel / 8)));
+	my_pixel_put(d->rx, d->ry, &data->img, color);
 }
 
-void init_parameters(t_data *data)
+void	draw_wall_slice(t_data *data, int r, float disT, int tex_x)
 {
-    load_texture(data, &data->north_texture, data->graphics.north);
-    load_texture(data, &data->south_texture, data->graphics.south);
-    load_texture(data, &data->west_texture, data->graphics.west);
-    load_texture(data, &data->east_texture, data->graphics.east);
-    data->px = (data->gamer_pos.column) * PX_SIZE + (PX_SIZE / 2); //from map index to position in pixel on big map
-    data->py = (data->gamer_pos.row) * PX_SIZE + (PX_SIZE / 2); 
-    data->pdx = cos(data->gamer_dir) * 5;
-    data->pdy = sin(data->gamer_dir) * 5;
+	t_draw	d;
+	int		i;
+	int		j;
+
+	init_draw_params(&d, disT);
+	i = -1;
+	while (++i < d.slice_width)
+	{
+		j = -1;
+		d.tex_current = d.tex_pos;
+		while (++j < d.lineh)
+		{
+			d.tex_y = (int)d.tex_current % 64;
+			d.rx = r * d.slice_width + i;
+			d.ry = j + d.lineoffset;
+			draw_texture_line(data, &d, tex_x);
+			d.tex_current += d.ratio;
+		}
+	}
 }
 
-void	init_mlx(t_data *data)
+float	set_wall_direction(t_data *data, float dist_h, float dist_v, t_ray *ray)
 {
-    data->mlx_ptr = mlx_init();
-    if (!data->mlx_ptr)
-        ft_error_ray();
-    data->win_ptr = mlx_new_window(data->mlx_ptr, WIDTH, HEIGHT,
-            "data");
-    if (!data->win_ptr)
-    {
-        mlx_destroy_display(data->mlx_ptr);
-        free(data->mlx_ptr);
-        ft_error_ray();
-    }
-    data->img.img_ptr = mlx_new_image(data->mlx_ptr, WIDTH, HEIGHT);
-    if (!data->img.img_ptr)
-    {
-        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-        mlx_destroy_display(data->mlx_ptr);
-        free(data->mlx_ptr);
-        ft_error_ray();
-    }
-    data->img.pix_ptr = mlx_get_data_addr(data->img.img_ptr,
-            &data->img.bpp, &data->img.line_len, &data->img.endian);
-    init_parameters(data);
+	if (dist_v < dist_h)
+	{
+		ray->tex_x = ((int)fabs(ray->vy)) % 64;
+		if (ray->angle > PI / 2 && ray->angle < 3 * PI / 2)
+			data->direction = D_WEST;
+		else
+			data->direction = D_EAST;
+		return (dist_v);
+	}
+	ray->tex_x = ((int)fabs(ray->hx)) % 64;
+	if (ray->angle > PI)
+		data->direction = D_NORTH;
+	else
+		data->direction = D_SOUTH;
+	return (dist_h);
 }
 
-int end_data(t_data *data)
+void	raycasting(t_data *data)
 {
-    if (data->north_texture.img)
-        mlx_destroy_image(data->mlx_ptr, data->north_texture.img);
-    if (data->south_texture.img)
-        mlx_destroy_image(data->mlx_ptr, data->south_texture.img);
-    if (data->east_texture.img)
-        mlx_destroy_image(data->mlx_ptr, data->east_texture.img);
-    if (data->west_texture.img)
-        mlx_destroy_image(data->mlx_ptr, data->west_texture.img);
-    if (data->img.img_ptr)
-        mlx_destroy_image(data->mlx_ptr, data->img.img_ptr);
-    if (data->win_ptr)
-        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-    if (data->mlx_ptr)
-    {
-        mlx_destroy_display(data->mlx_ptr);
-        free(data->mlx_ptr);
-    }
-    clean_up(data);
-    exit(0);
-}
+	t_ray	ray;
+	int		r;
+	float	raysfield;
 
-//TODO:e
-void	my_pixel_put(int x, int y, t_img *img, int color)
-{
-    int	offset;
-
-    if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT)
-    {
-        offset = (y * img->line_len) + (x * (img->bpp / 8));
-        *(unsigned int *)(img->pix_ptr + offset) = color;
-    }
-}
-
-static void	draw_square(t_data *data, int x, int y, int color)
-{
-    int	i;
-    int	j;
-    int	square_size;
-    int	xo;
-    int	yo;
-
-    square_size = MINIMAP_WIDTH / data->map_size.column;
-    xo = x * square_size;
-    yo = y * square_size;
-    i = xo;
-    while (i < xo + square_size)
-    {
-        j = yo;
-        while (j < yo + square_size)
-        {
-            my_pixel_put(i, j, &data->img, color);
-            j++;
-        }
-        i++;
-    }
-}
-
-void	draw_minimap(t_data *data)
-{
-    int	x;
-    int	y;
-    int	color;
-
-    y = 0;
-    while (y < data->map_size.row)
-    {
-        x = 0;
-        while (x < data->map_size.column)
-        {
-            if (data->map[y][x] == '1')
-                color = 0xFFFFFF;
-            else
-                color = 0x000000;
-            draw_square(data, x, y, color);
-            x++;
-        }
-        y++;
-    }
-}
-
-void draw_player(t_data *data, int size)
-{
-    int square_size;
-    int center_x;
-    int center_y;
-    int red;
-    // Convertir la position du joueur à l'échelle de la minimap
-    square_size = MINIMAP_WIDTH / data->map_size.column;
-    center_x = (data->px / PX_SIZE) * square_size;
-    center_y = (data->py / PX_SIZE) * square_size;
-    red = 0xFF0000;
-    // Taille du joueur proportionnelle aux cases de la minimap
-    int scaled_size = size * (square_size / PX_SIZE);
-    int x = -scaled_size/2;
-    int y;
-
-    while (x <= scaled_size/2)
-    {
-        y = -scaled_size/2;
-        while (y <= scaled_size/2)
-        {
-            my_pixel_put(center_x + x, center_y + y, &data->img, red);
-            y++;
-        }
-        x++;
-    }
-}
-
-void draw_ceiling_and_floor(t_data *data)
-{
-    int x;
-    int y;
-    
-    x = 0;
-    while (x < WIDTH)
-    {
-        y = 0;
-        while (y < HEIGHT)
-        {
-            if (y < HEIGHT/2)
-                my_pixel_put(x, y, &data->img, data->graphics.ceiling.hex);
-            else
-                my_pixel_put(x, y, &data->img, data->graphics.floor.hex);
-            y++;
-        }
-        x++;
-    }
-}
-
-float calculate_horizontal_offset(float first_ray, float *xo, float *yo)
-{
-    float aTan = -1 / tan(first_ray);
-    
-    if (first_ray == 0 || first_ray == PI)
-        return (8);  // Skip horizontal checks
-
-    if (first_ray > PI)  // Looking up
-    {
-        *yo = -PX_SIZE;
-        *xo = -(*yo) * aTan;
-    }
-    else  // Looking down
-    {
-        *yo = PX_SIZE;
-        *xo = -(*yo) * aTan;
-    }
-    return aTan;
-}
-
-float init_horizontal_ray(t_data *data, float first_ray, float *rx, float *ry)
-{
-    float xo, yo;
-    float aTan = calculate_horizontal_offset(first_ray, &xo, &yo);
-    
-    if (aTan == 8)
-        return (8);
-        
-    if (first_ray > PI)  // Looking up
-    {
-        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) - 0.0001;
-        *rx = (data->py - *ry) * aTan + data->px;
-    }
-    else  // Looking down
-    {
-        *ry = (floor(data->py / PX_SIZE) * PX_SIZE) + PX_SIZE;
-        *rx = (data->py - *ry) * aTan + data->px;
-    }
-    return (0);
-}
-
-float calculate_vertical_offset(float first_ray, float *xo, float *yo)
-{
-    float nTan = -tan(first_ray);
-    
-    if (first_ray == PI/2 || first_ray == 3*PI/2)
-        return (8);  // Skip vertical checks
-        
-    if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
-    {
-        *xo = -PX_SIZE;
-        *yo = -(*xo) * nTan;
-    }
-    else  // Looking right
-    {
-        *xo = PX_SIZE;
-        *yo = -(*xo) * nTan;
-    }
-    return nTan;
-}
-
-float init_vertical_ray(t_data *data, float first_ray, float *rx, float *ry)
-{
-    float xo, yo;
-    float nTan = calculate_vertical_offset(first_ray, &xo, &yo);
-    
-    if (nTan == 8)
-        return (8);
-        
-    if (first_ray > PI/2 && first_ray < 3*PI/2)  // Looking left
-    {
-        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) - 0.01;
-        *ry = (data->px - *rx) * nTan + data->py;
-    }
-    else  // Looking right
-    {
-        *rx = (floor(data->px/PX_SIZE) * PX_SIZE) + PX_SIZE;
-        *ry = (data->px - *rx) * nTan + data->py;
-    }
-    return (0);
-}
-
-int get_map_position(t_data *data, float rx, float ry)
-{
-    int mx = (int)(rx / PX_SIZE);
-    int my = (int)(ry / PX_SIZE);
-    
-    if (mx >= 0 && mx < data->map_size.column && 
-        my >= 0 && my < data->map_size.row)
-    {
-        if (data->map[my][mx] == '1')
-            return (1);
-    }
-    return (0);
-}
-
-float normalize_angle(float angle)
-{
-    while (angle < 0) 
-        angle += 2 * PI;
-    while (angle > 2 * PI)
-        angle -= 2 * PI;
-    return angle;
-}
-
-void init_ray_casting(t_data *data, float *first_ray, float *raysfield, int *slice_width)
-{
-    *raysfield = FOV / NUM_RAYS;
-    *first_ray = normalize_angle(data->gamer_dir - FOV/2);
-    *slice_width = WIDTH / NUM_RAYS;
-}
-
-//beceause FPV = PI/3 so 0<cos(a)<1
-float fix_fisheye(float distance, float gamer_dir, float ray_angle)
-{
-    float ca = normalize_angle(gamer_dir - ray_angle);
-    return (distance * cos(ca));
-}
-
-void load_texture(t_data *data, t_texture *texture, char *path)
-{
-    texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, 
-                                        &texture->width, &texture->height);
-    if (!texture->img)
-        ft_error_ray();
-    //mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, texture->img, 100, 100);
-    texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
-                                     &texture->line_length, &texture->endian);
-}
-
-//draw_wall_slice(data, r, wall_distance_h, slice_width, tex_x);
-void draw_wall_slice(t_data *data, int r, float disT, int slice_width, int tex_x)
-{
-    float lineH = (PX_SIZE * HEIGHT) / disT;
-    float lineO = (HEIGHT - lineH) / 2;
-    float ratio = 64.0 / lineH; //image size / wall height 
-    // step = 1, 1 texture pixel -> 1 wall pixel
-    // step = 0.5, 1 texture pixel -> 2 wall pixel
-    // step = 2, 2 texture pixels -> 1 wall pixel
-    float tex_pos = 0;
-
-    if (lineH > HEIGHT)
-    {
-        tex_pos = (lineH - HEIGHT) / 2.0 * ratio;
-        lineH = HEIGHT;
-        lineO = 0;
-    }
-
-    int i = 0;
-    while (i < slice_width)
-    {
-        int j = 0;
-        float tex_current = tex_pos;
-        while (j < lineH)
-        {
-            int tex_y = (int)tex_current % 64;
-            t_texture *current_texture = NULL;
-
-            //ft_printf("direction is: %d\n", data->direction);
-            if (data->direction == D_NORTH)
-                current_texture = &data->north_texture;
-            else if (data->direction == D_SOUTH)
-                current_texture = &data->south_texture;
-            else if (data->direction == D_WEST)
-                current_texture = &data->west_texture;
-            else if (data->direction == D_EAST)
-                current_texture = &data->east_texture;
-            //ft_printf("current texture: %p\n", current_texture->addr); // BUG IS HERE (NO ADRESS)
-            //ft_printf("current texture length: %d\n", current_texture->line_length);
-            //ft_printf("current texture bits per pxl: %d\n", current_texture->bits_per_pixel);
-            //printf("playerangle = %f\n", data->gamer_dir);
-            int color = *(int*)(current_texture->addr + 
-                (tex_y * current_texture->line_length + 
-                tex_x * (current_texture->bits_per_pixel / 8)));
-            //ft_printf("color before pixelput: %d\n", color);
-            my_pixel_put(r * slice_width + i, j + lineO, &data->img, color);
-            tex_current += ratio;
-            j++;
-        }
-        i++;
-    }
-}
-
-float check_horizontal_lines(t_data *data, float first_ray, float *hx, float *hy)
-{
-    float rx, ry, xo, yo;
-    int dof = 0;
-    float wall_distance_h = 1000000;
-
-    dof = init_horizontal_ray(data, first_ray, &rx, &ry);
-    if (dof == 8)
-        return wall_distance_h;
-        
-    calculate_horizontal_offset(first_ray, &xo, &yo);
-    
-    while (dof < data->map_size.row)
-    {
-        if (get_map_position(data, rx, ry))
-        {
-            wall_distance_h = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));
-            *hx = rx;
-            *hy = ry;
-            return (wall_distance_h);
-        }
-        rx += xo;
-        ry += yo;
-        dof++;
-    }
-    return (wall_distance_h);
-}
-
-float check_vertical_lines(t_data *data, float first_ray, float *vx, float *vy)
-{
-    float rx, ry;
-    float xo = 0, yo = 0;
-    int dof = 0;
-    float wall_distance_v = 1000000;
-
-    dof = init_vertical_ray(data, first_ray, &rx, &ry);
-    if (dof == 8)
-        return wall_distance_v;
-        
-    calculate_vertical_offset(first_ray, &xo, &yo);
-    
-    while (dof < data->map_size.column)
-    {
-        if (get_map_position(data, rx, ry))
-        {
-            wall_distance_v = sqrt((rx-data->px)*(rx-data->px) + (ry-data->py)*(ry-data->py));       
-            *vx = rx;
-            *vy = ry;
-            return (wall_distance_v);
-        }
-        rx += xo;
-        ry += yo;
-        dof++;
-    }
-    return (wall_distance_v);
-}
-
-void raycasting(t_data *data) //uses BIGMAP
-{
-    float raysfield, first_ray;  
-    int slice_width;
-    float hx, hy, vx, vy;
-    // hx, hy: coordinates of the wall impact point for horizontal intersections
-    // vx, vy: coordinates of the wall impact point for vertical intersections
-    float wall_distance_h, wall_distance_v;
-    int r = 0;
-    int tex_x;
-
-    draw_ceiling_and_floor(data); //good
-    init_ray_casting(data, &first_ray, &raysfield, &slice_width); //good
-
-    while (r < NUM_RAYS)
-    {
-        wall_distance_h = check_horizontal_lines(data, first_ray, &hx, &hy);
-        //ft_printf("hx:%d\n", hx);
-        wall_distance_v = check_vertical_lines(data, first_ray, &vx, &vy);
-        
-        if (wall_distance_v < wall_distance_h) // ray looking to a vertical wall
-        {
-            tex_x = ((int)fabs(vy)) % 64;// Position x dans la texture
-            if (first_ray > PI/2 && first_ray < 3*PI/2)
-                data->direction = D_WEST;
-            else
-                data->direction = D_EAST;
-            wall_distance_h = wall_distance_v;
-        }
-        else // ray looking to a horizontal wall
-        {  
-            tex_x = ((int)fabs(hx)) % 64;  // Position x dans la texture
-            if (first_ray > PI)
-                data->direction = D_NORTH;   // Flag pour indiquer un mur nord
-            else
-                data->direction = D_SOUTH;
-            //printf("direction = %d\n", data->direction);
-        }
-        //plus ray s'eloigne de player_dir, plus on retrecit wall_distance (bc cos(ca) decreasing) 
-        wall_distance_h = fix_fisheye(wall_distance_h, data->gamer_dir, first_ray);
-        draw_wall_slice(data, r, wall_distance_h, slice_width, tex_x);
-
-        first_ray = normalize_angle(first_ray + raysfield);
-        r++;
-    }
-}
-
-void	cub3d_draw(t_data *data)
-{
-    //draw_background(data);
-    raycasting(data);
-    draw_minimap(data);
-    draw_player(data, 2);
-    mlx_put_image_to_window(data->mlx_ptr, data->win_ptr,
-        data->img.img_ptr, 0, 0);
-    /*
-    int		img_width;
-	int		img_height;
-
-    data->img.img_ptr = mlx_xpm_file_to_image(data->mlx_ptr,
-        "./wall_lvl0.xpm", &img_width, &img_height);;
-    mlx_put_image_to_window(data->mlx_ptr, data->win_ptr,
-        data->img.img_ptr, 700, 200);
-    */
-}
-
-int moves(int key, t_data *data)
-{
-    if (key == XK_Escape)
-        end_data(data);
-    else if (key == XK_Right) // Turn right 
-    {
-        data->gamer_dir += 0.1;
-        if (data->gamer_dir > 2*PI)
-            data->gamer_dir -= 2*PI;
-        data->pdx = cos(data->gamer_dir) * 5;
-        data->pdy = sin(data->gamer_dir) * 5;
-    }
-    else if (key == XK_Left) // Turn left
-    {
-        data->gamer_dir -= 0.1;
-        if (data->gamer_dir < 0)
-            data->gamer_dir += 2*PI;
-        data->pdx = cos(data->gamer_dir) * 5;
-        data->pdy = sin(data->gamer_dir) * 5;
-    }  
-    else if (key == XK_w) // Avancer
-    {
-        double new_px = data->px + data->pdx;
-        double new_py = data->py + data->pdy;
-        int map_x = (int)(new_px / PX_SIZE);
-        int map_y = (int)(new_py / PX_SIZE);
-        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
-        {
-            data->px += data->pdx;
-            data->py += data->pdy;
-            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
-        }  
-    }
-    else if (key == XK_s) // Reculer
-    {
-        double new_px = data->px - data->pdx;
-        double new_py = data->py - data->pdy;
-        int map_x = (int)(new_px / PX_SIZE);
-        int map_y = (int)(new_py / PX_SIZE);
-        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
-        {
-            data->px -= data->pdx;
-            data->py -= data->pdy;
-            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
-        }
-    }
-    else if (key == XK_a) // se decaler a gauche
-    {
-        double new_px = data->px + cos(data->gamer_dir - PI/2) * 5;
-        double new_py = data->py + sin(data->gamer_dir - PI/2) * 5;
-        int map_x = (int)(new_px / PX_SIZE);
-        int map_y = (int)(new_py / PX_SIZE);
-        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
-        {
-            data->px = new_px;
-            data->py = new_py;
-            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
-        }
-    }
-    else if (key == XK_d) // se decaler a droite
-    {
-        double new_px = data->px + cos(data->gamer_dir + PI/2) * 5;
-        double new_py = data->py + sin(data->gamer_dir + PI/2) * 5;
-        int map_x = (int)(new_px / PX_SIZE);
-        int map_y = (int)(new_py / PX_SIZE);
-        if(data->map[map_y][map_x] == '0' || data->map[map_y][map_x] == 'N')
-        {
-            data->px = new_px;
-            data->py = new_py;
-            //printf("x = %f y = %f pa = %f\n\n", data->px, data->py, data->gamer_dir);
-        }
-    }
-    cub3d_draw(data);
-    return (0);
-}
-
-void	init_events(t_data *data)
-{
-    mlx_hook(data->win_ptr,KeyPress, KeyPressMask, &moves, data);
-    mlx_hook(data->win_ptr, DestroyNotify, 0, end_data, data);
-}
-
-int  cub_3d(t_data *data)
-{
-    init_mlx(data);
-    cub3d_draw(data);
-    init_events(data);
-    mlx_loop(data->mlx_ptr);
-	return (SUCCESS);
+	r = -1;
+	draw_ceiling_and_floor(data);
+	init_ray_casting(data, &ray, &raysfield);
+	while (++r < NUM_RAYS)
+	{
+		ray.dist_h = check_horizontal_lines(data, ray.angle, &ray.hx, &ray.hy);
+		ray.dist_v = check_vertical_lines(data, ray.angle, &ray.vx, &ray.vy);
+		ray.dist = set_wall_direction(data, ray.dist_h, ray.dist_v, &ray);
+		ray.dist = fix_fisheye(ray.dist, data->gamer_dir, ray.angle);
+		draw_wall_slice(data, r, ray.dist, ray.tex_x);
+		ray.angle = normalize_angle(ray.angle + raysfield);
+	}
 }

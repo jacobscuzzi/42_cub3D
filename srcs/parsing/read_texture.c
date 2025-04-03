@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   read_texture.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:39:44 by jbaumfal          #+#    #+#             */
-/*   Updated: 2025/03/25 18:07:56 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/04/03 15:56:06 by varodrig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ t_error	check_path(char *line)
 			&& line[i - 2] == 'p' && line[i - 1] == 'm'))
 		return (PATH_XPM_ERR);
 	line[i] = '\0';
-		//remove_new_line(line);
 	fd = open(line, O_RDONLY);
 	if (fd == -1)
 		return (PATH_ERR);
