@@ -6,7 +6,7 @@
 /*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 14:46:33 by varodrig          #+#    #+#             */
-/*   Updated: 2025/04/17 15:01:33 by jbaumfal         ###   ########.fr       */
+/*   Updated: 2025/04/17 15:16:45 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	init_mlx(t_data *data)
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		ft_error_ray();
-	data->win_ptr = mlx_new_window(data->mlx_ptr, WIDTH, HEIGHT, "data");
+	data->win_ptr = mlx_new_window(data->mlx_ptr, WIDTH, HEIGHT, "Cub3D");
 	if (!data->win_ptr)
 	{
 		mlx_destroy_display(data->mlx_ptr);
