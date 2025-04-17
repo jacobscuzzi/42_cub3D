@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycasting_utils.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 15:42:57 by varodrig          #+#    #+#             */
-/*   Updated: 2025/04/03 16:01:19 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/04/17 15:02:17 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ float	fix_fisheye(float distance, float gamer_dir, float ray_angle)
 
 void	init_ray_casting(t_data *data, t_ray *ray, float *raysfield)
 {
-    float fov;
+	float	fov;
 
-    fov = PI/3;
+	fov = PI / 3;
 	*raysfield = fov / NUM_RAYS;
 	ray->angle = normalize_angle(data->gamer_dir - fov / 2);
 }

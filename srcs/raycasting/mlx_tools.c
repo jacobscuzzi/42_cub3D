@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mlx_tools.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: varodrig <varodrig@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jbaumfal <jbaumfal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 14:46:33 by varodrig          #+#    #+#             */
-/*   Updated: 2025/04/03 16:17:59 by varodrig         ###   ########.fr       */
+/*   Updated: 2025/04/17 15:01:33 by jbaumfal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	end_data_error(t_data *data)
 		free(data->mlx_ptr);
 	}
 	clean_up(data);
-    ft_putstr_fd("Error\nFailed to load texture\n", STDERR_FILENO);
+	ft_putstr_fd("Error\nFailed to load texture\n", STDERR_FILENO);
 	exit(1);
 }
 
@@ -89,7 +89,7 @@ void	load_texture(t_data *data, t_texture *texture, char *path)
 	texture->img = mlx_xpm_file_to_image(data->mlx_ptr, path, &texture->width,
 			&texture->height);
 	if (!texture->img)
-        end_data_error(data);
+		end_data_error(data);
 	texture->addr = mlx_get_data_addr(texture->img, &texture->bits_per_pixel,
 			&texture->line_length, &texture->endian);
 }

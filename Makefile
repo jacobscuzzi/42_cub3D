@@ -30,7 +30,7 @@ STANDARD_FLAGS 	= -Wall -Werror -Wextra -I./includes -g3
 
 MLX_FLAGS	= -I$(MLX_DIR) -L$(MLX_DIR) -lmlx -L/usr/lib/X11 -lXext -lX11
 
-REMOVE = rm -f
+REMOVE = rm -rf
 
 
 
@@ -139,7 +139,10 @@ clean:
 	@make fclean -C libft
 	@make clean -C $(LIBFT_PATH)
 	@make clean -C $(MLX_DIR)
-	@find $(SRCS_DIR) -name "*.o" -type f -delete
+	@$(REMOVE) $(OBJ_FILES)
+	@$(REMOVE) $(OBJ_DIR)
+	@echo "$(RED)$(BOLD)Cleaning up...$(RESET)"
+	@echo "$(GREEN)$(BOLD)All clean!$(RESET)"
 
 
 fclean: clean
